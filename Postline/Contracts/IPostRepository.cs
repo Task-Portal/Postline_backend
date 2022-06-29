@@ -12,10 +12,11 @@ namespace Contracts
         void CreatePost(Post post);
         Task<IEnumerable<Post>> GetByIdsAsync(IEnumerable<Guid> ids, bool trackChanges);
         Task<IEnumerable<Post>> GetPostsByUserIdAsync(Guid userId, bool trackChanges);
+        Task<IEnumerable<Post>> GetPostsByUserIdWithDetailsAsync(Guid userId, bool trackChanges);
 
         void DeletePost(Post post);
         
         Task<IEnumerable<Post>> GetAllPostsWithDetailsAsync(bool trackChanges);
-        Task<Post> GetAllPostWithDetailsAsync(Guid postId,bool trackChanges);
+        Task<Post> GetPostWithDetailsAsync(Guid postId,bool trackChanges);
     }
 }

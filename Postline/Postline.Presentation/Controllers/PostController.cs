@@ -42,7 +42,7 @@ namespace Postline.Presentation.Controllers
         } 
         
         [HttpGet("user/{userId:guid}", Name = "PostsByUserId")]
-        [Authorize]
+        // [Authorize]
         public async Task<IActionResult> GetPostsByUserId(Guid userId)
         {
             var post = await _service.PostService.GetPostsByUserIdAsync(userId, trackChanges: false);

@@ -33,7 +33,14 @@ namespace Repository.Repositories
 
         public async Task<IEnumerable<Post>> GetPostsByUserIdAsync(Guid userId, bool trackChanges) =>
             await FindByCondition(x => x.UserId.Equals(x.UserId), trackChanges)
-                .ToListAsync();
+                            .ToListAsync();
+                            
+          public async Task<IEnumerable<Post>> GetPostsByUserIdWithDetailsAsync(Guid userId, bool trackChanges) =>
+            await FindByCondition(x => x.UserId.Equals(x.UserId), trackChanges).
+                          Include(u => u.User)
+                                         .Include(c => c.Category)
+                                          .OrderBy(c => c.PostDate)
+                                          .ToListAsync();
         
 
         public void DeletePost(Post post) => Delete(post);
@@ -48,7 +55,7 @@ namespace Repository.Repositories
                 .ToListAsync();
         }
 
-        public async Task<Post> GetAllPostWithDetailsAsync(Guid postId, bool trackChanges)
+        public async Task<Post> GetPostWithDetailsAsync(Guid postId, bool trackChanges)
         {
          return   await FindByCondition(c => c.Id.Equals(postId), trackChanges)
              .Include(u => u.User)

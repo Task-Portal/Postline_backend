@@ -86,7 +86,7 @@ namespace Service
             if (_user is null)
                 throw new IdParametersBadRequestException();
 
-            var post = await _repository.Post.GetPostsByUserIdAsync(userid, trackChanges);
+            var post = await _repository.Post.GetPostsByUserIdWithDetailsAsync(userid, trackChanges);
             var postsToReturn = _mapper.Map<IEnumerable<PostDto>>(post);
         
             return postsToReturn;
@@ -126,18 +126,18 @@ namespace Service
         	PostForUpdateDto postForUpdate, bool trackChanges)
         {
         	var post = await GetPostAndCheckIfItExists(postId, trackChanges);
-        
+            post.User = await _userManager.FindByIdAsync(post.UserId.ToString());
         	_mapper.Map(postForUpdate, post);
         	await _repository.SaveAsync();
         }
         
         private async Task<Post> GetPostAndCheckIfItExists(Guid id, bool trackChanges)
         {
-            // var post = await _repository.Post.GetPostAsync(id, trackChanges);
-            var post = await _repository.Post.GetAllPostWithDetailsAsync(id, trackChanges);
+            var post = await _repository.Post.GetPostWithDetailsAsync(id, trackChanges);
             if (post is null)
                 throw new PostNotFoundException(id);
 
+            post.User = await GetUserAndCheckIfItExists(post.UserId);
             return post;
         } 
         
@@ -150,5 +150,7 @@ namespace Service
         
             return _user;
         }
+        
+        
     }
 }

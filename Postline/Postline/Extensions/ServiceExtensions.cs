@@ -70,8 +70,8 @@ namespace Postline.Extensions
                 new RateLimitRule
                 {
                     Endpoint = "*",
-                    Limit = 30,
-                    Period = "5m"
+                    Limit = 100,
+                    Period = "3m"
                 }
             };
 
