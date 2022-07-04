@@ -12,7 +12,8 @@ namespace Postline
     {
         public MappingProfile()
         {
-            CreateMap<UserForRegistrationDto, User>();
+            CreateMap<UserForRegistrationDto, User>()  
+                .ForMember(u => u.UserName, opt => opt.MapFrom(x => x.Email));;
             CreateMap<User,UserDto>();
 
 

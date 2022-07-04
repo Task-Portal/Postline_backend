@@ -3,8 +3,11 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Contracts;
+using EmailService;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Postline.Presentation.ActionFilters;
 using Service.Contracts;
 using Shared.DataTransferObjects;
@@ -17,45 +20,57 @@ namespace Postline.Presentation.Controllers
     public class AuthenticationController : ControllerBase
     {
         private readonly IServiceManager _service;
-
+        
         public AuthenticationController(IServiceManager service)
         {
             _service = service;
            
+           
         }
 
-        [HttpPost]
+        [HttpPost("registration")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> RegisterUser([FromBody] UserForRegistrationDto userForRegistration)
         {
             var result = await _service.AuthenticationService.RegisterUser(userForRegistration);
-            if (!result.Succeeded)
-            {
-                foreach (var error in result.Errors)
-                {
-                    ModelState.TryAddModelError(error.Code, error.Description);
-                }
-
-                return BadRequest(ModelState);
+            
+            
+            if (!result.Succeeded) 
+            { 
+                var errors = result.Errors.Select(e => e.Description); 
+                
+                return BadRequest(new RegistrationResponseDto { Errors = errors }); 
             }
-
-            return Ok(new
-            {
-                message = "User successfully created."
-            });
+            return StatusCode(201); 
         }
 
         [HttpPost("login")]
-        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]  
         public async Task<IActionResult> Authenticate([FromBody] UserForAuthenticationDto user)
         {
+           
+            
             if (!await _service.AuthenticationService.ValidateUser(user))
                 return Unauthorized();
-            return Ok(new
-            {
-                accessToken = await _service
-                    .AuthenticationService.CreateToken()
-            });
+            // return Ok(new
+            // {
+            //     accessToken = await _service
+            //         .AuthenticationService.CreateToken()
+            // });
+            var token = await _service
+                .AuthenticationService.CreateToken();
+            return Ok(new AuthResponseDto { IsAuthSuccessful = true, Token =token});
+        }
+        
+        [HttpGet("privacy")]
+        // [Authorize]
+        [Authorize(Roles = "Manager")]
+        public IActionResult Privacy()
+        {
+            var claims = User.Claims
+                .Select(c => new { c.Type, c.Value })
+                .ToList();
+            return Ok(claims);
         }
 
         [HttpGet("me")]
@@ -96,6 +111,27 @@ namespace Postline.Presentation.Controllers
             var result = await _service.AuthenticationService.ValidateUserName(userName.UserName);
 
             return Ok(result);
-        }   
+        } 
+        
+        // [HttpPost("sendEmail")]
+        // public async Task<IActionResult> SendEmail()
+        // {
+        //     var files = Request.Form.Files.Any() ? Request.Form.Files : new FormFileCollection();
+        //     var message = new Message(new string[] { "therewego123xy123@gmail.com" }, "Test mail with Attachments", "This is the content from our mail with attachments.", files);
+        //     await _emailSender.SendEmailAsync(message);
+        //     return Ok();
+        // }   
+        
+        [HttpPost("forgotPassword")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]  
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto forgotPasswordDto)
+        {
+            var response =await  _service.AuthenticationService.SendRestoreLinkToEmail(forgotPasswordDto);
+            if (!response)
+                return BadRequest("Invalid Request");
+            
+            
+            return Ok();
+        }
     }
 }

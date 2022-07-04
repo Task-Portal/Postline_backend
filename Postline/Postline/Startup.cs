@@ -13,6 +13,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AspNetCoreRateLimit;
 using Contracts;
+using LoggerService;
 using Microsoft.AspNetCore.HttpOverrides;
 using NLog;
 using Postline.Extensions;
@@ -40,6 +41,7 @@ namespace Postline
             services.ConfigureRepositoryManager();
             services.ConfigureServiceManager();
             services.ConfigureSqlContext(Configuration);
+            services.ConfigureEmailService(Configuration);
             services.AddControllers()
                 .AddApplicationPart(typeof(Presentation.AssemblyReference).Assembly);
             services.AddAutoMapper(typeof(Program));

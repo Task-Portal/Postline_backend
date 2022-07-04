@@ -12,6 +12,7 @@ namespace Service.Contracts
         Task<bool> ValidateUser(UserForAuthenticationDto userForAuth);
         Task<bool> ValidateEmail(string email);
         Task<bool> ValidateUserName(string userName);
+        Task<bool> SendRestoreLinkToEmail(ForgotPasswordDto forgotPasswordDto);
         Task<string> CreateToken();
         Task<UserDto> GetAuthUser(string id);
         

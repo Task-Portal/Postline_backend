@@ -5,6 +5,7 @@ using AutoMapper;
 using Contracts;
 using Entities.Exceptions;
 using Entities.Models;
+using LoggerService;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 using Shared.DataTransferObjects.ForCreation;

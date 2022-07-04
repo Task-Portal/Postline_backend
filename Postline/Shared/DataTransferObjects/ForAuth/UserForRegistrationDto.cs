@@ -10,8 +10,8 @@ namespace Shared.DataTransferObjects.ForAuth
         [Required(ErrorMessage = "LastName is required")]
         public string LastName { get; set; }
 
-        [Required(ErrorMessage = "Username is required")]
-        public string UserName { get; set; }
+        // [Required(ErrorMessage = "Username is required")]
+        // public string UserName { get; set; }
 
         [Required(ErrorMessage = "Password is required")]
         public string Password { get; set; }
@@ -19,7 +19,11 @@ namespace Shared.DataTransferObjects.ForAuth
         [Required(ErrorMessage = "Email is required")]
         public string Email { get; set; }
         
-        public string Role { get; set; }
+        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        public string ConfirmPassword { get; set; }
+        
+        // public string Role { get; set; }
+        
         
     }
 }

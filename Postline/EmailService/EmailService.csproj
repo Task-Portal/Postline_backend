@@ -5,8 +5,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\EmailService\EmailService.csproj" />
-      <ProjectReference Include="..\Entities\Entities.csproj" />
+      <PackageReference Include="MailKit-On-NETCore" Version="2.1.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="2.2.0" />
     </ItemGroup>
 
 </Project>

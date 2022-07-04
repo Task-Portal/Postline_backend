@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service", "Service\Service.csproj", "{1141A1F7-12E2-4F63-9132-A50B7C556FB7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailService", "EmailService\EmailService.csproj", "{9FC16095-05DD-475B-A63D-A08FFC34A945}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{1141A1F7-12E2-4F63-9132-A50B7C556FB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1141A1F7-12E2-4F63-9132-A50B7C556FB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1141A1F7-12E2-4F63-9132-A50B7C556FB7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9FC16095-05DD-475B-A63D-A08FFC34A945}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FC16095-05DD-475B-A63D-A08FFC34A945}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FC16095-05DD-475B-A63D-A08FFC34A945}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FC16095-05DD-475B-A63D-A08FFC34A945}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

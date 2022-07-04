@@ -17,4 +17,10 @@
       <ProjectReference Include="..\Service.Contracts\Service.Contracts.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Reference Include="Microsoft.AspNetCore.WebUtilities">
+        <HintPath>C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\3.1.21\Microsoft.AspNetCore.WebUtilities.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
 </Project>

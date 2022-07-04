@@ -1,9 +1,12 @@
 ﻿using System;
 using AutoMapper;
 using Contracts;
+using EmailService;
 using Entities.Models;
+using LoggerService;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using NETCore.MailKit.Core;
 using Service.Contracts;
 
 namespace Service
@@ -19,13 +22,13 @@ namespace Service
             ILoggerManager logger,
             IMapper mapper, 
             UserManager<User> userManager,
-            IConfiguration configuration)
+            IConfiguration configuration, IEmailSender emailService)
         {
             _postService = new Lazy<IPostService>(() => new PostService(logger, repositoryManager, mapper,userManager));
             _commentService = new Lazy<ICommentService>(() => new CommentService(logger, repositoryManager,mapper));
             _categoryService = new Lazy<ICategoryService>(() => new CategoryService(logger, repositoryManager, mapper));
             _authenticationService = new Lazy<IAuthenticationService>(() =>
-                new AuthenticationService(logger, mapper, userManager, configuration));
+                new AuthenticationService(logger, mapper, userManager, configuration, emailService));
         }
 
         public IAuthenticationService AuthenticationService => _authenticationService.Value;

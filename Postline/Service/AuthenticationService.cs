@@ -13,6 +13,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using EmailService;
+using LoggerService;
+using Microsoft.AspNetCore.WebUtilities;
 using Shared.DataTransferObjects.ForAuth;
 using Shared.DataTransferObjects.ForShow;
 
@@ -24,34 +27,42 @@ namespace Service
         private readonly IMapper _mapper;
         private readonly UserManager<User> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly IEmailSender _emailSender;
+
 
         private User _user;
 
         public AuthenticationService(ILoggerManager logger, IMapper mapper,
-            UserManager<User> userManager, IConfiguration configuration)
+            UserManager<User> userManager, IConfiguration configuration, IEmailSender emailSender)
         {
             _logger = logger;
             _mapper = mapper;
             _userManager = userManager;
             _configuration = configuration;
+            _emailSender = emailSender;
         }
 
         public async Task<IdentityResult> RegisterUser(UserForRegistrationDto userForRegistration)
         {
-            userForRegistration.Role = "User";
+            // userForRegistration.Role = "User";
             var user = _mapper.Map<User>(userForRegistration);
 
             var result = await _userManager.CreateAsync(user, userForRegistration.Password);
 
+           
             
             if (result.Succeeded)
             {
-                await _userManager.AddToRolesAsync(user,   new List<string>{userForRegistration.Role} );
+                await _userManager.AddToRoleAsync(user,   "User" );
             }
-           
+            
 
             return result;
         }
+        
+        
+
+      
 
         public async Task<bool> ValidateUser(UserForAuthenticationDto userForAuth)
         {
@@ -61,7 +72,6 @@ namespace Service
             if (!result)
                 _logger.LogWarn($"{nameof(ValidateUser)}: Authentication failed. Wrong user email or password.");
 
-            _logger.LogInfo($"Found user {_user} Validate user");
             return result;
         }
 
@@ -69,7 +79,15 @@ namespace Service
         
         public async Task<bool> ValidateUserName(string userName)=> await _userManager.FindByNameAsync(userName) != null;
         
+        public async Task<UserDto> GetAuthUser(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            var mappedUser = _mapper.Map<UserDto>(user);
+            mappedUser.Role = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
+            return mappedUser;
+        }
 
+      
         public async Task<string> CreateToken()
         {
             var signingCredentials = GetSigningCredentials();
@@ -80,17 +98,12 @@ namespace Service
             return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
         }
 
-        public async Task<UserDto> GetAuthUser(string id)
-        {
-            var user = await _userManager.FindByIdAsync(id);
-            var mappedUser = _mapper.Map<UserDto>(user);
-            mappedUser.Role = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
-            return mappedUser;
-        }
-
+      
         private SigningCredentials GetSigningCredentials()
         {
-            var key = Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("SECRET"));
+            // var key = Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("SECRET"));
+          var securityKey=  _configuration.GetSection("JwtSettings");
+            var key = Encoding.UTF8.GetBytes(securityKey.GetSection("securityKey").Value);
             var secret = new SymmetricSecurityKey(key);
 
             return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
@@ -100,19 +113,14 @@ namespace Service
         {
             var claims = new List<Claim>
             {
-                new Claim("id", _user.Id),
-                 
+                new Claim(ClaimTypes.Name, _user.Email)
             };
-
             var roles = await _userManager.GetRolesAsync(_user);
             
             foreach (var role in roles)
             {
-                //Todo role change it if roles are many
-                  claims.Add(new Claim("Role", role)); // for me on the frontend
-                    claims.Add(new Claim(ClaimTypes.Role, role)); //for identity to authorizate
+                claims.Add(new Claim(ClaimTypes.Role, role));
             }
-
             return claims;
         }
 
@@ -125,11 +133,34 @@ namespace Service
                 issuer: jwtSettings["validIssuer"],
                 audience: jwtSettings["validAudience"],
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(Convert.ToDouble(jwtSettings["expires"])),
+                expires: DateTime.Now.AddMinutes(Convert.ToDouble(jwtSettings["expiryInMinutes"])),
                 signingCredentials: signingCredentials
             );
 
             return tokenOptions;
         }
+
+        public async Task<bool> SendRestoreLinkToEmail(ForgotPasswordDto forgotPasswordDto)
+        {
+
+            var user = await _userManager.FindByEmailAsync(forgotPasswordDto.Email);
+            if (user==null)
+            {
+                return false;
+            }
+            
+            
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var param = new Dictionary<string, string>
+            {
+                {"token", token },
+                {"email", forgotPasswordDto.Email }
+            };
+            var callback = QueryHelpers.AddQueryString(forgotPasswordDto.ClientUrl, param);
+            var message = new Message(new string[] { user.Email }, "Reset password token", callback, null);
+            await _emailSender.SendEmailAsync(message);
+            return true;
+        }
+       
     }
 }

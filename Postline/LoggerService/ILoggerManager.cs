@@ -1,4 +1,4 @@
-﻿namespace Contracts
+﻿namespace LoggerService
 {
     public interface ILoggerManager
     {
