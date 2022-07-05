@@ -1,13 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Contracts;
-using EmailService;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.WebUtilities;
 using Postline.Presentation.ActionFilters;
 using Service.Contracts;
 using Shared.DataTransferObjects;
@@ -20,12 +15,10 @@ namespace Postline.Presentation.Controllers
     public class AuthenticationController : ControllerBase
     {
         private readonly IServiceManager _service;
-        
+
         public AuthenticationController(IServiceManager service)
         {
             _service = service;
-           
-           
         }
 
         [HttpPost("registration")]
@@ -33,23 +26,22 @@ namespace Postline.Presentation.Controllers
         public async Task<IActionResult> RegisterUser([FromBody] UserForRegistrationDto userForRegistration)
         {
             var result = await _service.AuthenticationService.RegisterUser(userForRegistration);
-            
-            
-            if (!result.Succeeded) 
-            { 
-                var errors = result.Errors.Select(e => e.Description); 
-                
-                return BadRequest(new RegistrationResponseDto { Errors = errors }); 
+
+
+            if (!result.Succeeded)
+            {
+                var errors = result.Errors.Select(e => e.Description);
+
+                return BadRequest(new RegistrationResponseDto { Errors = errors });
             }
-            return StatusCode(201); 
+
+            return StatusCode(201);
         }
 
         [HttpPost("login")]
-        [ServiceFilter(typeof(ValidationFilterAttribute))]  
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> Authenticate([FromBody] UserForAuthenticationDto user)
         {
-           
-            
             if (!await _service.AuthenticationService.ValidateUser(user))
                 return Unauthorized();
             // return Ok(new
@@ -59,9 +51,9 @@ namespace Postline.Presentation.Controllers
             // });
             var token = await _service
                 .AuthenticationService.CreateToken();
-            return Ok(new AuthResponseDto { IsAuthSuccessful = true, Token =token});
+            return Ok(new AuthResponseDto { IsAuthSuccessful = true, Token = token });
         }
-        
+
         [HttpGet("privacy")]
         // [Authorize]
         [Authorize(Roles = "Manager")]
@@ -77,8 +69,7 @@ namespace Postline.Presentation.Controllers
         [Authorize]
         public async Task<IActionResult> GetAuthUser()
         {
-
-            string id = GetIdFromToken();
+            var id = GetIdFromToken();
             var result = await _service.AuthenticationService.GetAuthUser(id);
 
             return Ok(result);
@@ -87,10 +78,10 @@ namespace Postline.Presentation.Controllers
         private string GetIdFromToken()
         {
             var identity = User.Identity as ClaimsIdentity;
-            string id = "";
+            var id = "";
             if (identity != null)
             {
-                IEnumerable<Claim> claims = identity.Claims;
+                var claims = identity.Claims;
                 id = claims.FirstOrDefault(p => p.Type == "id")?.Value;
             }
 
@@ -103,16 +94,16 @@ namespace Postline.Presentation.Controllers
             var result = await _service.AuthenticationService.ValidateEmail(email.Email);
 
             return Ok(result);
-        }  
-        
+        }
+
         [HttpPost("checkUserName")]
         public async Task<IActionResult> CheckUserName([FromBody] CheckUserName userName)
         {
             var result = await _service.AuthenticationService.ValidateUserName(userName.UserName);
 
             return Ok(result);
-        } 
-        
+        }
+
         // [HttpPost("sendEmail")]
         // public async Task<IActionResult> SendEmail()
         // {
@@ -121,16 +112,16 @@ namespace Postline.Presentation.Controllers
         //     await _emailSender.SendEmailAsync(message);
         //     return Ok();
         // }   
-        
+
         [HttpPost("forgotPassword")]
-        [ServiceFilter(typeof(ValidationFilterAttribute))]  
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto forgotPasswordDto)
         {
-            var response =await  _service.AuthenticationService.SendRestoreLinkToEmail(forgotPasswordDto);
+            var response = await _service.AuthenticationService.SendRestoreLinkToEmail(forgotPasswordDto);
             if (!response)
                 return BadRequest("Invalid Request");
-            
-            
+
+
             return Ok();
         }
     }

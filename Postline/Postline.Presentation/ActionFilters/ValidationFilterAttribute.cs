@@ -6,10 +6,6 @@ namespace Postline.Presentation.ActionFilters
 {
     public class ValidationFilterAttribute : IActionFilter
     {
-        public ValidationFilterAttribute()
-        {
-        }
-
         public void OnActionExecuting(ActionExecutingContext context)
         {
             var action = context.RouteData.Values["action"];

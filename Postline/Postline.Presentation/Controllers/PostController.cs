@@ -1,15 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
-using Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using Postline.Presentation.ActionFilters;
 using Service.Contracts;
-using Shared.DataTransferObjects;
 using Shared.DataTransferObjects.ForCreation;
 using Shared.DataTransferObjects.ForUpdate;
 
@@ -19,41 +13,36 @@ namespace Postline.Presentation.Controllers
     [ApiController]
     public class PostController : ControllerBase
     {
-       
-        
         private readonly IServiceManager _service;
 
-        public PostController(IServiceManager service) => _service = service;
+        public PostController(IServiceManager service)
+        {
+            _service = service;
+        }
 
         [HttpGet]
         public async Task<IActionResult> GetPosts()
         {
-            var posts = await _service.PostService.GetAllPostsAsync(trackChanges: false);
-        
+            var posts = await _service.PostService.GetAllPostsAsync(false);
+
             return Ok(posts);
         }
 
         [HttpGet("{id:guid}", Name = "PostById")]
-       
         public async Task<IActionResult> GetPost(Guid id)
         {
-            var post = await _service.PostService.GetPostAsync(id, trackChanges: false);
+            var post = await _service.PostService.GetPostAsync(id, false);
             return Ok(post);
-        } 
-        
+        }
+
         [HttpGet("user/{userId:guid}", Name = "PostsByUserId")]
         // [Authorize]
         public async Task<IActionResult> GetPostsByUserId(Guid userId)
         {
-            var post = await _service.PostService.GetPostsByUserIdAsync(userId, trackChanges: false);
+            var post = await _service.PostService.GetPostsByUserIdAsync(userId, false);
             return Ok(post);
         }
-        
-        
-        
-        
-        
-        
+
 
         // [HttpGet("collection/({ids})", Name = "PostCollection")]
         // public async Task<IActionResult> GetPostCollection
@@ -64,17 +53,17 @@ namespace Postline.Presentation.Controllers
         //     return Ok(companies);
         // }
         //
-        
+
         [HttpPost]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         [Authorize]
         public async Task<IActionResult> CreatePost([FromBody] PostForCreationDto post)
         {
             var createdPost = await _service.PostService.CreatePostAsync(post);
-        
+
             return CreatedAtRoute("PostById", new { id = createdPost.Id }, createdPost);
         }
-        
+
         // [HttpPost("collection")]
         // public async Task<IActionResult> CreatePostCollection
         //     ([FromBody] IEnumerable<PostForCreationDto> postCollection)
@@ -84,31 +73,23 @@ namespace Postline.Presentation.Controllers
         //     return CreatedAtRoute("PostCollection", new { result.ids }, result.companies);
         // }
         //
-         [Authorize]
+        [Authorize]
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> DeletePost(Guid id)
         {
-           
-            await _service.PostService.DeletePostAsync(id, trackChanges: false);
-        
+            await _service.PostService.DeletePostAsync(id, false);
+
             return NoContent();
         }
-        
+
         [HttpPut("{id:guid}")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         [Authorize]
         public async Task<IActionResult> UpdatePost(Guid id, [FromBody] PostForUpdateDto post)
         {
-            await _service.PostService.UpdatePostAsync(id, post, trackChanges: true);
-        
+            await _service.PostService.UpdatePostAsync(id, post, true);
+
             return NoContent();
         }
-
-       
-
-       
-       
-
-       
     }
 }
