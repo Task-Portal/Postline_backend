@@ -9,6 +9,7 @@ namespace Service.Contracts
     public interface IAuthenticationService
     {
         Task<IdentityResult> RegisterUser(UserForRegistrationDto userForRegistration);
+        Task<IdentityResult> ResetPassword(ResetPasswordDto resetPasswordDto);
         Task<bool> ValidateUser(UserForAuthenticationDto userForAuth);
         Task<bool> ValidateEmail(string email);
         Task<bool> ValidateUserName(string userName);

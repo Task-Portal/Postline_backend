@@ -15,6 +15,7 @@ namespace Postline.Presentation.Controllers
     public class AuthenticationController : ControllerBase
     {
         private readonly IServiceManager _service;
+        
 
         public AuthenticationController(IServiceManager service)
         {
@@ -114,13 +115,29 @@ namespace Postline.Presentation.Controllers
         // }   
 
         [HttpPost("forgotPassword")]
-        [ServiceFilter(typeof(ValidationFilterAttribute))]
+         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto forgotPasswordDto)
         {
             var response = await _service.AuthenticationService.SendRestoreLinkToEmail(forgotPasswordDto);
             if (!response)
                 return BadRequest("Invalid Request");
 
+
+            return Ok();
+        }
+        
+        [HttpPost("ResetPassword")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> ResetPassword([FromBody]ResetPasswordDto resetPasswordDto)
+        {
+            var resetPassResult = await _service.AuthenticationService.ResetPassword(resetPasswordDto);
+
+            if (!resetPassResult.Succeeded)
+            {
+                var errors = resetPassResult.Errors.Select(e => e.Description);
+
+                return BadRequest(new { Errors = errors });
+            }
 
             return Ok();
         }

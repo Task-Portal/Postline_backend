@@ -161,6 +161,13 @@ namespace Service
             await _emailSender.SendEmailAsync(message);
             return true;
         }
+
+        public async Task<IdentityResult> ResetPassword(ResetPasswordDto resetPasswordDto)
+        {
+            var user = await _userManager.FindByEmailAsync(resetPasswordDto.Email);
+           return await _userManager.ResetPasswordAsync(user, resetPasswordDto.Token, resetPasswordDto.Password);
+           
+        }
        
     }
 }
