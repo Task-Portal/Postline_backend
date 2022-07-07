@@ -15,19 +15,25 @@ namespace Postline.Presentation.Controllers
     public class AuthenticationController : ControllerBase
     {
         private readonly IServiceManager _service;
-        
+
+
+        #region Ctor
 
         public AuthenticationController(IServiceManager service)
         {
             _service = service;
         }
+        
 
+        #endregion
+
+        #region Registration
+        
         [HttpPost("registration")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> RegisterUser([FromBody] UserForRegistrationDto userForRegistration)
         {
             var result = await _service.AuthenticationService.RegisterUser(userForRegistration);
-
 
             if (!result.Succeeded)
             {
@@ -39,21 +45,28 @@ namespace Postline.Presentation.Controllers
             return StatusCode(201);
         }
 
+        #endregion
+
+        #region Login
+
         [HttpPost("login")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> Authenticate([FromBody] UserForAuthenticationDto user)
         {
             if (!await _service.AuthenticationService.ValidateUser(user))
                 return Unauthorized();
-            // return Ok(new
-            // {
-            //     accessToken = await _service
-            //         .AuthenticationService.CreateToken()
-            // });
+
+            if (!await _service.AuthenticationService.IsEmailConfirmed(user))
+                return Unauthorized(new AuthResponseDto { ErrorMessage = "Email is not confirmed" });
+
             var token = await _service
                 .AuthenticationService.CreateToken();
             return Ok(new AuthResponseDto { IsAuthSuccessful = true, Token = token });
         }
+
+        #endregion
+
+        #region Privacy
 
         [HttpGet("privacy")]
         // [Authorize]
@@ -65,6 +78,10 @@ namespace Postline.Presentation.Controllers
                 .ToList();
             return Ok(claims);
         }
+
+        #endregion
+
+        #region Get Auth User
 
         [HttpGet("me")]
         [Authorize]
@@ -89,6 +106,10 @@ namespace Postline.Presentation.Controllers
             return id;
         }
 
+        #endregion
+
+        #region Check Email
+
         [HttpPost("checkEmail")]
         public async Task<IActionResult> CheckEmail([FromBody] CheckEmail email)
         {
@@ -96,26 +117,14 @@ namespace Postline.Presentation.Controllers
 
             return Ok(result);
         }
+        
 
-        [HttpPost("checkUserName")]
-        public async Task<IActionResult> CheckUserName([FromBody] CheckUserName userName)
-        {
-            var result = await _service.AuthenticationService.ValidateUserName(userName.UserName);
+        #endregion
 
-            return Ok(result);
-        }
-
-        // [HttpPost("sendEmail")]
-        // public async Task<IActionResult> SendEmail()
-        // {
-        //     var files = Request.Form.Files.Any() ? Request.Form.Files : new FormFileCollection();
-        //     var message = new Message(new string[] { "therewego123xy123@gmail.com" }, "Test mail with Attachments", "This is the content from our mail with attachments.", files);
-        //     await _emailSender.SendEmailAsync(message);
-        //     return Ok();
-        // }   
+        #region Forgot Password
 
         [HttpPost("forgotPassword")]
-         [ServiceFilter(typeof(ValidationFilterAttribute))]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto forgotPasswordDto)
         {
             var response = await _service.AuthenticationService.SendRestoreLinkToEmail(forgotPasswordDto);
@@ -125,10 +134,14 @@ namespace Postline.Presentation.Controllers
 
             return Ok();
         }
-        
+
+        #endregion
+
+        #region Reset Password
+
         [HttpPost("ResetPassword")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> ResetPassword([FromBody]ResetPasswordDto resetPasswordDto)
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto resetPasswordDto)
         {
             var resetPassResult = await _service.AuthenticationService.ResetPassword(resetPasswordDto);
 
@@ -141,5 +154,25 @@ namespace Postline.Presentation.Controllers
 
             return Ok();
         }
+
+        #endregion
+
+        #region Email Confirmation
+
+        [HttpGet("EmailConfirmation")]
+        public async Task<IActionResult> EmailConfirmation([FromQuery] string email, [FromQuery] string token)
+        {
+           
+            if (!await _service.AuthenticationService.ValidateEmail(email))
+                return BadRequest("Invalid Email Confirmation Request");
+
+            var confirmResult = await _service.AuthenticationService.EmailConfirmation(email, token);
+            if (!confirmResult.Succeeded)
+                return BadRequest("Invalid Email Confirmation Request");
+
+            return Ok();
+        }
+
+        #endregion
     }
 }

@@ -12,11 +12,13 @@ namespace Service.Contracts
         Task<IdentityResult> ResetPassword(ResetPasswordDto resetPasswordDto);
         Task<bool> ValidateUser(UserForAuthenticationDto userForAuth);
         Task<bool> ValidateEmail(string email);
-        Task<bool> ValidateUserName(string userName);
         Task<bool> SendRestoreLinkToEmail(ForgotPasswordDto forgotPasswordDto);
         Task<string> CreateToken();
         Task<UserDto> GetAuthUser(string id);
-        
-        
+
+        Task<bool> IsEmailConfirmed(UserForAuthenticationDto userForAuthentication);
+        Task<IdentityResult> EmailConfirmation(string email, string token);
+
+
     }
 }
