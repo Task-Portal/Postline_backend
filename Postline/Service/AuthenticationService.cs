@@ -45,10 +45,9 @@ namespace Service
             _configuration = configuration;
             _emailSender = emailSender;
         }
-        
 
         #endregion
-        
+
         #region Register User
 
         public async Task<IdentityResult> RegisterUser(UserForRegistrationDto userForRegistration)
@@ -57,12 +56,11 @@ namespace Service
 
             var result = await _userManager.CreateAsync(user, userForRegistration.Password);
 
-//Disable Avast Antivirus
+            //Disable Avast Antivirus
             if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(user, "User");
                 await GenerateEmailConfirmationToken(userForRegistration, user);
-              
             }
 
 
@@ -71,7 +69,6 @@ namespace Service
 
         #endregion
 
-
         #region Validate User
 
         public async Task<bool> ValidateUser(UserForAuthenticationDto userForAuth)
@@ -79,15 +76,56 @@ namespace Service
             _user = await _userManager.FindByEmailAsync(userForAuth.Email);
 
             var result = (_user != null && await _userManager.CheckPasswordAsync(_user, userForAuth.Password));
+
+
             if (!result)
-                _logger.LogWarn($"{nameof(ValidateUser)}: Authentication failed. Wrong user email or password.");
+            {
+                await ImplementLockOutLogin(userForAuth);
+            }
+            else
+            {
+                await _userManager.ResetAccessFailedCountAsync(_user);
+            }
 
             return result;
         }
-        
 
         #endregion
-        
+
+        #region Lock Out Logic
+
+        private async Task ImplementLockOutLogin(UserForAuthenticationDto userForAuthentication)
+        {
+            await _userManager.AccessFailedAsync(_user);
+            if (await _userManager.IsLockedOutAsync(_user))
+            {
+                var content =
+                    $"Your account is locked out. To reset the password click this link: {userForAuthentication.ClientURL}";
+                var message = new Message(new string[] { userForAuthentication.Email },
+                    "Locked out account information", content, null);
+
+                await _emailSender.SendEmailAsync(message);
+            }
+        }
+
+        #region Is User Lock Out
+
+        public async Task<bool> IsUserLockOut(UserForAuthenticationDto userForAuthentication)
+        {
+            _user = await _userManager.FindByEmailAsync(userForAuthentication.Email);
+            return await _userManager.IsLockedOutAsync(_user);
+        }
+
+        #endregion
+
+        public async Task SetLockoutEndDateAsync(string email)
+        {
+            _user = await _userManager.FindByEmailAsync(email);
+            await _userManager.SetLockoutEndDateAsync(_user, new DateTime(2000, 1, 1));
+        }
+
+        #endregion
+
         #region Is Email Confirmed
 
         public async Task<bool> IsEmailConfirmed(UserForAuthenticationDto userForAuthentication)
@@ -102,7 +140,6 @@ namespace Service
         #region Validate Email
 
         public async Task<bool> ValidateEmail(string email) => await _userManager.FindByEmailAsync(email) != null;
-        
 
         #endregion
 
@@ -116,10 +153,8 @@ namespace Service
             return mappedUser;
         }
 
-        
-
         #endregion
-        
+
         #region Create Token
 
         public async Task<string> CreateToken()
@@ -174,7 +209,6 @@ namespace Service
 
             return tokenOptions;
         }
-        
 
         #endregion
 
@@ -200,7 +234,6 @@ namespace Service
             await _emailSender.SendEmailAsync(message);
             return true;
         }
-        
 
         #endregion
 
@@ -214,16 +247,20 @@ namespace Service
 
         #endregion
 
-        
+
+        #region Email Confirmation
+
         public async Task<IdentityResult> EmailConfirmation(string email, string token)
         {
             var user = await _userManager.FindByEmailAsync(email);
-          var result=  await _userManager.ConfirmEmailAsync(user, token);
+            var result = await _userManager.ConfirmEmailAsync(user, token);
 
-          return result;
+            return result;
         }
-        
-        
+
+        #endregion
+
+
         #region Generate Email Confirmation Token
 
         private async Task GenerateEmailConfirmationToken(UserForRegistrationDto userForRegistration, User user)
@@ -237,9 +274,7 @@ namespace Service
             var callback = QueryHelpers.AddQueryString(userForRegistration.ClientURL, param);
             var message = new Message(new string[] { user.Email }, "Email Confirmation token", callback, null);
             await _emailSender.SendEmailAsync(message);
-          
         }
-        
 
         #endregion
     }

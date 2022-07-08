@@ -17,6 +17,8 @@ namespace Service.Contracts
         Task<UserDto> GetAuthUser(string id);
 
         Task<bool> IsEmailConfirmed(UserForAuthenticationDto userForAuthentication);
+        Task<bool> IsUserLockOut(UserForAuthenticationDto userForAuthentication);
+        Task SetLockoutEndDateAsync(string email);
         Task<IdentityResult> EmailConfirmation(string email, string token);
 
 

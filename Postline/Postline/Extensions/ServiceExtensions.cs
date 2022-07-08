@@ -59,6 +59,11 @@ namespace Postline.Extensions
                     o.Password.RequiredLength = 1;
                     o.User.RequireUniqueEmail = true;
                     
+                    // For Lockout functionality
+                    o.Lockout.AllowedForNewUsers = true;
+                    o.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
+                    o.Lockout.MaxFailedAccessAttempts = 3;
+                    
                     
                 })
                 .AddEntityFrameworkStores<RepositoryContext>()

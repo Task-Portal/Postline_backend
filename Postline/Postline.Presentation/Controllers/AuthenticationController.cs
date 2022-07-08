@@ -59,6 +59,11 @@ namespace Postline.Presentation.Controllers
             if (!await _service.AuthenticationService.IsEmailConfirmed(user))
                 return Unauthorized(new AuthResponseDto { ErrorMessage = "Email is not confirmed" });
 
+            if (await _service.AuthenticationService.IsUserLockOut(user))
+            {
+                return Unauthorized(new AuthResponseDto { ErrorMessage = "The account is locked out" });
+            }
+
             var token = await _service
                 .AuthenticationService.CreateToken();
             return Ok(new AuthResponseDto { IsAuthSuccessful = true, Token = token });
@@ -151,6 +156,8 @@ namespace Postline.Presentation.Controllers
 
                 return BadRequest(new { Errors = errors });
             }
+
+            await _service.AuthenticationService.SetLockoutEndDateAsync(resetPasswordDto.Email);
 
             return Ok();
         }

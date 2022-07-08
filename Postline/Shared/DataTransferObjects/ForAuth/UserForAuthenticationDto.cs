@@ -9,5 +9,6 @@ namespace Shared.DataTransferObjects.ForAuth
 
         [Required(ErrorMessage = "Password name is required")]
         public string Password { get; set; }
+        public string ClientURL { get; set; }
     }
 }
