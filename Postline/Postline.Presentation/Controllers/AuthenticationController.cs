@@ -23,12 +23,11 @@ namespace Postline.Presentation.Controllers
         {
             _service = service;
         }
-        
 
         #endregion
 
         #region Registration
-        
+
         [HttpPost("registration")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> RegisterUser([FromBody] UserForRegistrationDto userForRegistration)
@@ -63,6 +62,21 @@ namespace Postline.Presentation.Controllers
             {
                 return Unauthorized(new AuthResponseDto { ErrorMessage = "The account is locked out" });
             }
+
+            #region Check two factor validation
+
+            if (await _service.AuthenticationService.GetTwoFactorEnabledAsync(user))
+            {
+                if (!await _service.AuthenticationService.IsEmailInTwoFactorProvidersAsync(user))
+                {
+                    return Unauthorized(new AuthResponseDto { ErrorMessage = "Invalid 2-Step Verification Provider." });
+                }
+
+                await _service.AuthenticationService.GenerateOTPFor2StepVerification(user);
+                return Ok(new AuthResponseDto { Is2StepVerificationRequired = true, Provider = "Email" });
+            }
+
+            #endregion
 
             var token = await _service
                 .AuthenticationService.CreateToken();
@@ -122,7 +136,6 @@ namespace Postline.Presentation.Controllers
 
             return Ok(result);
         }
-        
 
         #endregion
 
@@ -169,7 +182,6 @@ namespace Postline.Presentation.Controllers
         [HttpGet("EmailConfirmation")]
         public async Task<IActionResult> EmailConfirmation([FromQuery] string email, [FromQuery] string token)
         {
-           
             if (!await _service.AuthenticationService.ValidateEmail(email))
                 return BadRequest("Invalid Email Confirmation Request");
 
@@ -178,6 +190,26 @@ namespace Postline.Presentation.Controllers
                 return BadRequest("Invalid Email Confirmation Request");
 
             return Ok();
+        }
+
+        #endregion
+
+        #region Two Step Verification
+
+        [HttpPost("TwoStepVerification")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> TwoStepVerification([FromBody]TwoFactorDto twoFactorDto)
+        {
+            var response=  await _service.AuthenticationService.ValidateEmail(twoFactorDto.Email);
+            
+            if (!response)
+                return BadRequest("Invalid Request");
+
+            if (!await _service.AuthenticationService.VerifyTwoFactorToken(twoFactorDto))
+                return BadRequest("Invalid Token Verification");
+
+            var token = await _service.AuthenticationService.CreateToken();
+            return Ok(new AuthResponseDto { IsAuthSuccessful = true, Token = token });
         }
 
         #endregion

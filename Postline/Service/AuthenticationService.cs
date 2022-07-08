@@ -61,6 +61,7 @@ namespace Service
             {
                 await _userManager.AddToRoleAsync(user, "User");
                 await GenerateEmailConfirmationToken(userForRegistration, user);
+                // await _userManager.SetTwoFactorEnabledAsync(user,true);
             }
 
 
@@ -277,5 +278,39 @@ namespace Service
         }
 
         #endregion
+
+        #region Two factor validation
+
+        public async Task<bool> IsEmailInTwoFactorProvidersAsync(UserForAuthenticationDto userForAuthentication)
+        {
+            _user = await _userManager.FindByEmailAsync(userForAuthentication.Email);
+            var providers = await _userManager.GetValidTwoFactorProvidersAsync(_user);
+            return providers.Contains("Email");
+        }
+
+        public async Task<bool> GetTwoFactorEnabledAsync(UserForAuthenticationDto userForAuthentication)
+        {
+            _user = await _userManager.FindByEmailAsync(userForAuthentication.Email);
+            return await _userManager.GetTwoFactorEnabledAsync(_user);
+        }
+
+        public async Task GenerateOTPFor2StepVerification(UserForAuthenticationDto userForAuthentication)
+        {
+            _user = await _userManager.FindByEmailAsync(userForAuthentication.Email); // delete this line
+            var token = await _userManager.GenerateTwoFactorTokenAsync(_user, "Email");
+            var message = new Message(new string[] { _user.Email }, "Authentication token", token, null);
+            await _emailSender.SendEmailAsync(message);
+        }
+
+        public async Task<bool> VerifyTwoFactorToken(TwoFactorDto twoFactorDto)
+        {
+            _user = await _userManager.FindByEmailAsync(twoFactorDto.Email);
+            var response = await _userManager.VerifyTwoFactorTokenAsync(_user, twoFactorDto.Provider, twoFactorDto.Token);
+            return response;
+        }
+
+        #endregion
+        
+        
     }
 }

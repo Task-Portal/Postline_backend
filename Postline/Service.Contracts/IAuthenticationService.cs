@@ -22,5 +22,16 @@ namespace Service.Contracts
         Task<IdentityResult> EmailConfirmation(string email, string token);
 
 
+        #region Two factor validation
+
+        Task<bool> IsEmailInTwoFactorProvidersAsync(UserForAuthenticationDto userForAuthentication);
+        Task<bool> GetTwoFactorEnabledAsync(UserForAuthenticationDto userForAuthentication);
+        Task GenerateOTPFor2StepVerification(UserForAuthenticationDto userForAuthentication);
+
+        Task<bool> VerifyTwoFactorToken(TwoFactorDto twoFactorDto);
+
+        #endregion
+
+
     }
 }
