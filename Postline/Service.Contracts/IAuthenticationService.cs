@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Identity;
 using Shared.DataTransferObjects;
 using Shared.DataTransferObjects.ForAuth;
@@ -17,10 +18,17 @@ namespace Service.Contracts
         Task<UserDto> GetAuthUser(string id);
 
         Task<bool> IsEmailConfirmed(UserForAuthenticationDto userForAuthentication);
-        Task<bool> IsUserLockOut(UserForAuthenticationDto userForAuthentication);
+        Task<bool> IsUserLockOut(string email);
         Task SetLockoutEndDateAsync(string email);
         Task<IdentityResult> EmailConfirmation(string email, string token);
 
+
+        #region Google Authentication
+
+        Task<GoogleJsonWebSignature.Payload> VerifyGoogleToken(ExternalAuthDto externalAuth);
+        Task<bool> ExternalLogin(ExternalAuthDto externalAuth, GoogleJsonWebSignature.Payload payload);
+
+            #endregion
 
         #region Two factor validation
 

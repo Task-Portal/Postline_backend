@@ -58,7 +58,7 @@ namespace Postline.Presentation.Controllers
             if (!await _service.AuthenticationService.IsEmailConfirmed(user))
                 return Unauthorized(new AuthResponseDto { ErrorMessage = "Email is not confirmed" });
 
-            if (await _service.AuthenticationService.IsUserLockOut(user))
+            if (await _service.AuthenticationService.IsUserLockOut(user.Email))
             {
                 return Unauthorized(new AuthResponseDto { ErrorMessage = "The account is locked out" });
             }
@@ -213,5 +213,28 @@ namespace Postline.Presentation.Controllers
         }
 
         #endregion
+        
+        [HttpPost("ExternalLogin")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> ExternalLogin([FromBody] ExternalAuthDto externalAuth)
+        {
+            var payload = await _service.AuthenticationService.VerifyGoogleToken(externalAuth);
+            if(payload == null)
+                return BadRequest("Invalid External Authentication. Payload is null.");
+
+
+            if (await _service.AuthenticationService.ExternalLogin(externalAuth,payload))
+                return BadRequest("Invalid External Authentication.");
+
+            //check for the Locked out account
+            if (await _service.AuthenticationService.IsUserLockOut(payload.Email))
+            {
+                return Unauthorized(new AuthResponseDto { ErrorMessage = "The account is locked out" });
+            }
+
+            var token = await _service
+                .AuthenticationService.CreateToken();
+            return Ok(new AuthResponseDto { Token = token, IsAuthSuccessful = true });
+        }
     }
 }

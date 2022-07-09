@@ -14,6 +14,7 @@ using System.Text;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using EmailService;
+using Google.Apis.Auth;
 using LoggerService;
 using Microsoft.AspNetCore.WebUtilities;
 using Shared.DataTransferObjects.ForAuth;
@@ -48,6 +49,23 @@ namespace Service
 
         #endregion
 
+        #region VerifyGoogleToken
+
+        public async Task<GoogleJsonWebSignature.Payload> VerifyGoogleToken(ExternalAuthDto externalAuth)
+        {
+            var googleSettings = _configuration.GetSection("GoogleAuthSettings");
+            var clientId = googleSettings.GetSection("clientId").Value;
+            var settings = new GoogleJsonWebSignature.ValidationSettings()
+            {
+                Audience = new List<string>() { clientId }
+            };
+
+            var payload = await GoogleJsonWebSignature.ValidateAsync(externalAuth.IdToken, settings);
+            return payload;
+        }
+
+        #endregion
+
         #region Register User
 
         public async Task<IdentityResult> RegisterUser(UserForRegistrationDto userForRegistration)
@@ -60,7 +78,7 @@ namespace Service
             if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(user, "User");
-                await GenerateEmailConfirmationToken(userForRegistration, user);
+                await GenerateEmailConfirmationToken(user, userForRegistration);
                 // await _userManager.SetTwoFactorEnabledAsync(user,true);
             }
 
@@ -111,9 +129,9 @@ namespace Service
 
         #region Is User Lock Out
 
-        public async Task<bool> IsUserLockOut(UserForAuthenticationDto userForAuthentication)
+        public async Task<bool> IsUserLockOut(string email)
         {
-            _user = await _userManager.FindByEmailAsync(userForAuthentication.Email);
+            _user = await _userManager.FindByEmailAsync(email);
             return await _userManager.IsLockedOutAsync(_user);
         }
 
@@ -248,7 +266,6 @@ namespace Service
 
         #endregion
 
-
         #region Email Confirmation
 
         public async Task<IdentityResult> EmailConfirmation(string email, string token)
@@ -261,18 +278,21 @@ namespace Service
 
         #endregion
 
-
         #region Generate Email Confirmation Token
 
-        private async Task GenerateEmailConfirmationToken(UserForRegistrationDto userForRegistration, User user)
+        private async Task GenerateEmailConfirmationToken(User user, UserForRegistrationDto userForRegistration = null)
         {
+            var url = userForRegistration == null
+                ? "http://localhost:5000/authentication/emailconfirmation"
+                : userForRegistration.ClientURL;
+
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var param = new Dictionary<string, string>
             {
                 { "token", token },
                 { "email", user.Email }
             };
-            var callback = QueryHelpers.AddQueryString(userForRegistration.ClientURL, param);
+            var callback = QueryHelpers.AddQueryString(url, param);
             var message = new Message(new string[] { user.Email }, "Email Confirmation token", callback, null);
             await _emailSender.SendEmailAsync(message);
         }
@@ -305,12 +325,51 @@ namespace Service
         public async Task<bool> VerifyTwoFactorToken(TwoFactorDto twoFactorDto)
         {
             _user = await _userManager.FindByEmailAsync(twoFactorDto.Email);
-            var response = await _userManager.VerifyTwoFactorTokenAsync(_user, twoFactorDto.Provider, twoFactorDto.Token);
+            var response =
+                await _userManager.VerifyTwoFactorTokenAsync(_user, twoFactorDto.Provider, twoFactorDto.Token);
             return response;
         }
 
         #endregion
-        
-        
+
+        #region External Login
+
+        public async Task<bool> ExternalLogin(ExternalAuthDto externalAuth, GoogleJsonWebSignature.Payload payload)
+        {
+            var info = new UserLoginInfo(externalAuth.Provider, payload.Subject, externalAuth.Provider);
+
+            _user = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+            if (_user == null)
+            {
+                _user = await _userManager.FindByEmailAsync(payload.Email);
+
+                if (_user == null)
+                {
+                    _user = new User { Email = payload.Email, UserName = payload.Email };
+                    await _userManager.CreateAsync(_user);
+
+                    //prepare and send an email for the email confirmation
+                    await GenerateEmailConfirmationToken(_user);
+
+                    await _userManager.AddToRoleAsync(_user, "User");
+                   
+                }
+                await _userManager.AddLoginAsync(_user, info);
+                
+            }
+
+            return _user == null;
+
+            #region Comments
+
+            // In our database, we can have three different situations.
+            // The user that tries to log in doesn’t exist at all,
+            // the user exists but without external login information,
+            // and the user exists with the external login information.
+
+            #endregion
+        }
     }
+
+    #endregion
 }
