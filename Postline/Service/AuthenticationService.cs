@@ -74,7 +74,7 @@ namespace Service
 
             var result = await _userManager.CreateAsync(user, userForRegistration.Password);
 
-            //Disable Avast Antivirus
+           
             if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(user, "User");
@@ -149,7 +149,7 @@ namespace Service
 
         public async Task<bool> IsEmailConfirmed(UserForAuthenticationDto userForAuthentication)
         {
-            var user = await _userManager.FindByNameAsync(userForAuthentication.Email);
+            var user = await _userManager.FindByEmailAsync(userForAuthentication.Email);
             var response = await _userManager.IsEmailConfirmedAsync(user);
             return response;
         }

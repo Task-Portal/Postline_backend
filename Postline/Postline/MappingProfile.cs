@@ -19,9 +19,12 @@ namespace Postline
 
             CreateMap<Post, PostDto>()
                 .ForMember(pd => pd.CategoryName, p => p.MapFrom(x => x.Category.CategoryName))
-                .ForMember(pd => pd.UserName, p => p.MapFrom(x => x.User.UserName))
+                .ForMember(pd=>pd.FirstName,p=>p.MapFrom(x=>x.User.FirstName))
+                .ForMember(pd=>pd.LastName,p=>p.MapFrom(x=>x.User.LastName))
                 .ReverseMap();
             CreateMap<PostForCreationDto, Post>();
+                // .ForMember(p => p.User.Id, pc => pc.MapFrom(x => x.UserId))
+                // .ForMember(p => p.Category.Id, pc => pc.MapFrom(x => x.CategoryId));
             CreateMap<PostForUpdateDto, Post>();
             
             CreateMap<Category, CategoryDto>().ReverseMap();

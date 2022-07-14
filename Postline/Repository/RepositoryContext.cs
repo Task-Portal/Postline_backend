@@ -20,7 +20,12 @@ namespace Repository
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Category>().Property(t => t.Id).HasColumnName("CategoryId");
             modelBuilder.Entity<Post>().Property(t => t.Id).HasColumnName("PostId");
-         
+            modelBuilder
+                .Entity<User>()
+                .HasMany<Post>(e => e.Posts)
+                .WithOne(e => e.User)
+                .OnDelete(DeleteBehavior.Cascade);
+            
              modelBuilder.ApplyConfiguration(new RoleConfiguration());
         }
 

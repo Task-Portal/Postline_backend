@@ -41,6 +41,12 @@ namespace Repository.Repositories
                                          .Include(c => c.Category)
                                           .OrderBy(c => c.PostDate)
                                           .ToListAsync();
+         public async Task<IEnumerable<Post>> GetPostsByUserNameWithDetailsAsync(string name, bool trackChanges) =>
+            await FindByCondition(x => x.User.UserName.Equals(name), trackChanges).
+                          Include(u => u.User)
+                                         .Include(c => c.Category)
+                                          .OrderBy(c => c.PostDate)
+                                          .ToListAsync();
         
 
         public void DeletePost(Post post) => Delete(post);

@@ -12,16 +12,13 @@ namespace Service.Contracts
     {
         Task<IEnumerable<PostDto>> GetAllPostsAsync(bool trackChanges);
         Task<PostDto> GetPostAsync(Guid postId, bool trackChanges);
-        Task<PostDto> CreatePostAsync(PostForCreationDto post);
-        Task<IEnumerable<PostDto>> GetByIdsAsync(IEnumerable<Guid> ids, bool trackChanges); 
-        Task<IEnumerable<PostDto>> GetPostsByUserIdAsync(Guid id, bool trackChanges);
-        // Task<(IEnumerable<PostDto> posts, string ids)> CreatePostCollectionAsync
-        //     (IEnumerable<PostForCreationDto> postCollection);
-         Task DeletePostAsync(Guid postId, bool trackChanges);
-           Task UpdatePostAsync(Guid postId, PostForUpdateDto postForUpdate, bool trackChanges);
-           
-         
-          
-         
+        Task<PostDto> CreatePostAsync(PostForCreationDto post, string name);
+        Task<IEnumerable<PostDto>> GetByIdsAsync(IEnumerable<Guid> ids, bool trackChanges);
+        
+
+        Task DeletePostAsync(Guid postId, bool trackChanges);
+        Task UpdatePostAsync(Guid postId, PostForUpdateDto postForUpdate, bool trackChanges);
+
+        Task<IEnumerable<PostDto>> GetPostsByUserName(string name, bool trackChanges);
     }
 }

@@ -55,10 +55,13 @@ namespace Service
             return postDto;
         }
 
-        public async Task<PostDto> CreatePostAsync(PostForCreationDto post)
+        public async Task<PostDto> CreatePostAsync(PostForCreationDto post, string name)
         {
-        	var postEntity = _mapper.Map<Post>(post);
+        	var postEntity = _mapper.Map<Post>(post);         
+            postEntity.User = await _userManager.FindByNameAsync(name);
+            postEntity.Category =await _repository.Category.GetCategoryAsync(post.CategoryId,true);
             postEntity.PostDate = DateTime.Now;
+            postEntity.Rating =0;
         	_repository.Post.CreatePost(postEntity);
         	await _repository.SaveAsync();
         
@@ -81,40 +84,22 @@ namespace Service
         	return postsToReturn;
         }
 
-        public async Task<IEnumerable<PostDto>> GetPostsByUserIdAsync(Guid userid, bool trackChanges)
+       
+
+        public async Task<IEnumerable<PostDto>> GetPostsByUserName(string name, bool trackChanges)
         {
-            _user = await _userManager.FindByIdAsync(userid.ToString());
+            _user = await _userManager.FindByNameAsync(name);
             if (_user is null)
                 throw new IdParametersBadRequestException();
 
-            var post = await _repository.Post.GetPostsByUserIdWithDetailsAsync(userid, trackChanges);
+            var post = await _repository.Post.GetPostsByUserNameWithDetailsAsync(name, trackChanges);
             var postsToReturn = _mapper.Map<IEnumerable<PostDto>>(post);
         
             return postsToReturn;
         } 
         
        
-
-        // public async Task<(IEnumerable<PostDto> posts, string ids)> CreatePostCollectionAsync
-        // 	(IEnumerable<PostForCreationDto> postCollection)
-        // {
-        // 	if (postCollection is null)
-        // 		throw new PostCollectionBadRequest();
-        //
-        // 	var postEntities = _mapper.Map<IEnumerable<Post>>(postCollection);
-        // 	foreach (var post in postEntities)
-        // 	{
-        // 		_repository.Post.CreatePost(post);
-        // 	}
-        //
-        // 	await _repository.SaveAsync();
-        //
-        // 	var postCollectionToReturn = _mapper.Map<IEnumerable<PostDto>>(postEntities);
-        // 	var ids = string.Join(",", postCollectionToReturn.Select(c => c.Id));
-        //
-        // 	return (posts: postCollectionToReturn, ids: ids);
-        // }
-        //
+        
         public async Task DeletePostAsync(Guid postId, bool trackChanges)
         {
         	var post = await GetPostAndCheckIfItExists(postId, trackChanges);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Entities.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Postline.Presentation.ActionFilters;
@@ -14,7 +15,7 @@ namespace Postline.Presentation.Controllers
     public class PostController : ControllerBase
     {
         private readonly IServiceManager _service;
-
+        
         public PostController(IServiceManager service)
         {
             _service = service;
@@ -29,17 +30,18 @@ namespace Postline.Presentation.Controllers
         }
 
         [HttpGet("{id:guid}", Name = "PostById")]
+      
         public async Task<IActionResult> GetPost(Guid id)
         {
             var post = await _service.PostService.GetPostAsync(id, false);
             return Ok(post);
         }
 
-        [HttpGet("user/{userId:guid}", Name = "PostsByUserId")]
-        // [Authorize]
-        public async Task<IActionResult> GetPostsByUserId(Guid userId)
+        [HttpGet("user")]
+        [Authorize(Roles = "User")]
+        public async Task<IActionResult> GetPostsByUserName()
         {
-            var post = await _service.PostService.GetPostsByUserIdAsync(userId, false);
+            var post = await _service.PostService.GetPostsByUserName(User.Identity.Name, false);
             return Ok(post);
         }
 
@@ -59,9 +61,9 @@ namespace Postline.Presentation.Controllers
         [Authorize]
         public async Task<IActionResult> CreatePost([FromBody] PostForCreationDto post)
         {
-            var createdPost = await _service.PostService.CreatePostAsync(post);
+            var createdPost = await _service.PostService.CreatePostAsync(post, User.Identity.Name);
 
-            return CreatedAtRoute("PostById", new { id = createdPost.Id }, createdPost);
+            return CreatedAtAction("CreatePost", new { id = createdPost.Id }, createdPost);
         }
 
         // [HttpPost("collection")]

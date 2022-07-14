@@ -22,6 +22,7 @@ namespace Postline.Presentation.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetCategories()
         {
             var categories = await _service.CategoryService.GetAllCategoriesAsync(false);

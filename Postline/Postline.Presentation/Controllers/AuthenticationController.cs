@@ -213,7 +213,10 @@ namespace Postline.Presentation.Controllers
         }
 
         #endregion
-        
+
+
+        #region External Login
+
         [HttpPost("ExternalLogin")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> ExternalLogin([FromBody] ExternalAuthDto externalAuth)
@@ -236,5 +239,8 @@ namespace Postline.Presentation.Controllers
                 .AuthenticationService.CreateToken();
             return Ok(new AuthResponseDto { Token = token, IsAuthSuccessful = true });
         }
+        
+
+        #endregion
     }
 }
