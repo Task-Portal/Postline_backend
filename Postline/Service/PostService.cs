@@ -113,6 +113,7 @@ namespace Service
         {
         	var post = await GetPostAndCheckIfItExists(postId, trackChanges);
             post.User = await _userManager.FindByIdAsync(post.UserId.ToString());
+            post.PostDate = DateTime.Now;
         	_mapper.Map(postForUpdate, post);
         	await _repository.SaveAsync();
         }
@@ -123,7 +124,7 @@ namespace Service
             if (post is null)
                 throw new PostNotFoundException(id);
 
-            post.User = await GetUserAndCheckIfItExists(post.UserId);
+            post.User = await GetUserAndCheckIfItExists(Guid.Parse(post.User.Id));
             return post;
         } 
         

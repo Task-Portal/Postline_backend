@@ -66,15 +66,6 @@ namespace Postline.Presentation.Controllers
             return CreatedAtAction("CreatePost", new { id = createdPost.Id }, createdPost);
         }
 
-        // [HttpPost("collection")]
-        // public async Task<IActionResult> CreatePostCollection
-        //     ([FromBody] IEnumerable<PostForCreationDto> postCollection)
-        // {
-        //     var result = await _service.PostService.CreatePostCollectionAsync(postCollection);
-        //
-        //     return CreatedAtRoute("PostCollection", new { result.ids }, result.companies);
-        // }
-        //
         [Authorize]
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> DeletePost(Guid id)
@@ -84,12 +75,12 @@ namespace Postline.Presentation.Controllers
             return NoContent();
         }
 
-        [HttpPut("{id:guid}")]
+        [HttpPut]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         [Authorize]
-        public async Task<IActionResult> UpdatePost(Guid id, [FromBody] PostForUpdateDto post)
+        public async Task<IActionResult> UpdatePost( [FromBody] PostForUpdateDto post)
         {
-            await _service.PostService.UpdatePostAsync(id, post, true);
+            await _service.PostService.UpdatePostAsync(post.PostId, post, true);
 
             return NoContent();
         }
