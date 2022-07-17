@@ -52,12 +52,12 @@ namespace Postline.Migrations
                 name: "Categories",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
+                    CategoryId = table.Column<Guid>(nullable: false),
                     CategoryName = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Categories", x => x.Id);
+                    table.PrimaryKey("PK_Categories", x => x.CategoryId);
                 });
 
             migrationBuilder.CreateTable(
@@ -170,30 +170,29 @@ namespace Postline.Migrations
                 name: "Posts",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
-                    UserId = table.Column<Guid>(nullable: false),
+                    PostId = table.Column<Guid>(nullable: false),
                     CategoryId = table.Column<Guid>(nullable: false),
                     Body = table.Column<string>(nullable: true),
                     Title = table.Column<string>(nullable: true),
                     Rating = table.Column<int>(nullable: false),
                     PostDate = table.Column<DateTime>(nullable: false),
-                    UserId1 = table.Column<string>(nullable: true)
+                    UserId = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Posts", x => x.Id);
+                    table.PrimaryKey("PK_Posts", x => x.PostId);
                     table.ForeignKey(
                         name: "FK_Posts_Categories_CategoryId",
                         column: x => x.CategoryId,
                         principalTable: "Categories",
-                        principalColumn: "Id",
+                        principalColumn: "CategoryId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Posts_AspNetUsers_UserId1",
-                        column: x => x.UserId1,
+                        name: "FK_Posts_AspNetUsers_UserId",
+                        column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -214,7 +213,7 @@ namespace Postline.Migrations
                         name: "FK_Comments_Posts_PostId",
                         column: x => x.PostId,
                         principalTable: "Posts",
-                        principalColumn: "Id",
+                        principalColumn: "PostId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Comments_AspNetUsers_UserId1",
@@ -227,17 +226,17 @@ namespace Postline.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "c73c09a0-68e7-4804-8348-6a082fd349bf", "7e889067-61a1-414e-a5ec-058128f125eb", "None", "NONE" });
+                values: new object[] { "452b8ef9-ff24-4f4c-9b0e-198985467efe", "cd9a3301-9b89-4f4e-854e-e7257684e514", "None", "NONE" });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "831ac314-d9cd-42f1-a487-51c7ec4f32d6", "2cf8204d-2435-47d7-8513-6b8eec2e13e9", "User", "USER" });
+                values: new object[] { "b2d2a4cb-de9a-43cd-a00b-81ef44e30198", "023d7416-9811-495d-94c2-d5007cda22e5", "User", "USER" });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "f2986548-848b-45c4-8515-092acdb42104", "1ed4ef83-5bbc-40b1-a77a-7e14c417a7c5", "Manager", "MANAGER" });
+                values: new object[] { "060fd13d-defe-4118-97c0-a548629dace0", "fa945b49-cada-4454-b0d2-8d2a965ed917", "Manager", "MANAGER" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -294,9 +293,9 @@ namespace Postline.Migrations
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Posts_UserId1",
+                name: "IX_Posts_UserId",
                 table: "Posts",
-                column: "UserId1");
+                column: "UserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

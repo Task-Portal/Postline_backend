@@ -37,10 +37,10 @@ namespace Service
         {
             var postsWithMetaData =   await _repository.Post.GetAllPostsWithDetailsAsync(postParameters,trackChanges);
 
-            foreach (var post in  postsWithMetaData)
-            {
-                post.User = await _userManager.FindByIdAsync(post.UserId.ToString());
-            }
+            // foreach (var post in  postsWithMetaData)
+            // {
+            //     post.User = await _userManager.FindByIdAsync(post.User.Id);
+            // }
 
             var postsDto = _mapper.Map<IEnumerable<PostDto>>(postsWithMetaData);
 
@@ -112,7 +112,7 @@ namespace Service
         	PostForUpdateDto postForUpdate, bool trackChanges)
         {
         	var post = await GetPostAndCheckIfItExists(postId, trackChanges);
-            post.User = await _userManager.FindByIdAsync(post.UserId.ToString());
+            post.User = await _userManager.FindByIdAsync(post.User.Id);
             post.PostDate = DateTime.Now;
         	_mapper.Map(postForUpdate, post);
         	await _repository.SaveAsync();

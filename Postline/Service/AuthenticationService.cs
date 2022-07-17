@@ -316,7 +316,7 @@ namespace Service
 
         public async Task GenerateOTPFor2StepVerification(UserForAuthenticationDto userForAuthentication)
         {
-            _user = await _userManager.FindByEmailAsync(userForAuthentication.Email); // delete this line
+            // _user = await _userManager.FindByEmailAsync(userForAuthentication.Email); // delete this line
             var token = await _userManager.GenerateTwoFactorTokenAsync(_user, "Email");
             var message = new Message(new string[] { _user.Email }, "Authentication token", token, null);
             await _emailSender.SendEmailAsync(message);
@@ -345,11 +345,11 @@ namespace Service
 
                 if (_user == null)
                 {
-                    _user = new User { Email = payload.Email, UserName = payload.Email };
+                    _user = new User { Email = payload.Email, UserName = payload.Email, FirstName = payload.GivenName, LastName = payload.FamilyName, EmailConfirmed = true};
                     await _userManager.CreateAsync(_user);
 
                     //prepare and send an email for the email confirmation
-                    await GenerateEmailConfirmationToken(_user);
+                    // await GenerateEmailConfirmationToken(_user);
 
                     await _userManager.AddToRoleAsync(_user, "User");
                    

@@ -5,7 +5,6 @@ namespace Entities.Models
 {
     public class Post:BaseEntity
     {
-        public Guid UserId { get; set; }
         public Guid CategoryId { get; set; }
         public string Body { get; set; }
         public string Title { get; set; }

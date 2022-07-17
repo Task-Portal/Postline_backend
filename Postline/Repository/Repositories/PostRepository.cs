@@ -32,11 +32,13 @@ namespace Repository.Repositories
                 .ToListAsync();
 
         public async Task<IEnumerable<Post>> GetPostsByUserIdAsync(Guid userId, bool trackChanges) =>
-            await FindByCondition(x => x.UserId.Equals(x.UserId), trackChanges)
+            await FindByCondition(x => x.User.Id.Equals(userId), trackChanges)
                 .ToListAsync();
-
+        
+    
+        
         public async Task<IEnumerable<Post>> GetPostsByUserIdWithDetailsAsync(Guid userId, bool trackChanges) =>
-            await FindByCondition(x => x.UserId.Equals(x.UserId), trackChanges).Include(u => u.User)
+            await FindByCondition(x => x.User.Id.Equals(userId), trackChanges).Include(u => u.User)
                 .Include(c => c.Category)
                 .OrderBy(c => c.PostDate)
                 .ToListAsync();

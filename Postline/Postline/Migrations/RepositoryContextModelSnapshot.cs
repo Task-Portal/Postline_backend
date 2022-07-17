@@ -86,17 +86,14 @@ namespace Postline.Migrations
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("UserId1")
+                    b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
 
-                    b.HasIndex("UserId1");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Posts");
                 });
@@ -201,22 +198,22 @@ namespace Postline.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "f9673b36-7c3f-45c9-88f7-c559d31e4a5a",
-                            ConcurrencyStamp = "1e233912-1e61-4436-8518-752f0a8136a1",
+                            Id = "452b8ef9-ff24-4f4c-9b0e-198985467efe",
+                            ConcurrencyStamp = "cd9a3301-9b89-4f4e-854e-e7257684e514",
                             Name = "None",
                             NormalizedName = "NONE"
                         },
                         new
                         {
-                            Id = "9591e37b-aa1c-427e-8cdd-ad75931ec5b0",
-                            ConcurrencyStamp = "1f124cf2-7e64-4594-bdb7-daa877da18eb",
+                            Id = "b2d2a4cb-de9a-43cd-a00b-81ef44e30198",
+                            ConcurrencyStamp = "023d7416-9811-495d-94c2-d5007cda22e5",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "a39e6e51-6251-4b58-ba44-d355912c7190",
-                            ConcurrencyStamp = "4468f0fd-ef06-40c2-ad54-411bff5d728f",
+                            Id = "060fd13d-defe-4118-97c0-a548629dace0",
+                            ConcurrencyStamp = "fa945b49-cada-4454-b0d2-8d2a965ed917",
                             Name = "Manager",
                             NormalizedName = "MANAGER"
                         });
@@ -349,7 +346,7 @@ namespace Postline.Migrations
 
                     b.HasOne("Entities.Models.User", "User")
                         .WithMany("Posts")
-                        .HasForeignKey("UserId1")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
