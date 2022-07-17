@@ -5,16 +5,16 @@ using System.Threading.Tasks;
 using Contracts;
 using Entities.Models;
 using Microsoft.EntityFrameworkCore;
+using Shared.RequestFeatures;
 
 namespace Repository.Repositories
 {
-    public class PostRepository:RepositoryBase<Post>, IPostRepository
+    public class PostRepository : RepositoryBase<Post>, IPostRepository
     {
         public PostRepository(RepositoryContext repositoryContext) : base(repositoryContext)
         {
         }
-        
-       
+
 
         public async Task<IEnumerable<Post>> GetAllPostsAsync(bool trackChanges) =>
             await FindAll(trackChanges)
@@ -33,40 +33,45 @@ namespace Repository.Repositories
 
         public async Task<IEnumerable<Post>> GetPostsByUserIdAsync(Guid userId, bool trackChanges) =>
             await FindByCondition(x => x.UserId.Equals(x.UserId), trackChanges)
-                            .ToListAsync();
-                            
-          public async Task<IEnumerable<Post>> GetPostsByUserIdWithDetailsAsync(Guid userId, bool trackChanges) =>
-            await FindByCondition(x => x.UserId.Equals(x.UserId), trackChanges).
-                          Include(u => u.User)
-                                         .Include(c => c.Category)
-                                          .OrderBy(c => c.PostDate)
-                                          .ToListAsync();
-         public async Task<IEnumerable<Post>> GetPostsByUserNameWithDetailsAsync(string name, bool trackChanges) =>
-            await FindByCondition(x => x.User.UserName.Equals(name), trackChanges).
-                          Include(u => u.User)
-                                         .Include(c => c.Category)
-                                          .OrderBy(c => c.PostDate)
-                                          .ToListAsync();
-        
+                .ToListAsync();
 
-        public void DeletePost(Post post) => Delete(post);
-       
-        public async Task<IEnumerable<Post>> GetAllPostsWithDetailsAsync(bool trackChanges)
-        {
-           return await FindAll(trackChanges).
-               
-               Include(u => u.User)
-               .Include(c => c.Category)
+        public async Task<IEnumerable<Post>> GetPostsByUserIdWithDetailsAsync(Guid userId, bool trackChanges) =>
+            await FindByCondition(x => x.UserId.Equals(x.UserId), trackChanges).Include(u => u.User)
+                .Include(c => c.Category)
                 .OrderBy(c => c.PostDate)
                 .ToListAsync();
+
+        public async Task<IEnumerable<Post>> GetPostsByUserNameWithDetailsAsync(string name, bool trackChanges) =>
+            await FindByCondition(x => x.User.UserName.Equals(name), trackChanges).Include(u => u.User)
+                .Include(c => c.Category)
+                .OrderBy(c => c.PostDate)
+                .ToListAsync();
+
+
+        public void DeletePost(Post post) => Delete(post);
+
+       
+        public async Task<PagedList<Post>> GetAllPostsWithDetailsAsync(PostParameters postParameters, bool trackChanges)
+        {
+            var posts = await FindAll(trackChanges)
+                .Include(u => u.User)
+                .Include(c => c.Category)
+                .OrderBy(c => c.PostDate)
+                .Skip((postParameters.PageNumber - 1) * postParameters.PageSize) 
+                .Take(postParameters.PageSize) 
+                .ToListAsync();
+
+            var count =await  FindAll(false).CountAsync();
+
+            return  new PagedList<Post>(posts, count, postParameters.PageNumber, postParameters.PageSize);
         }
 
         public async Task<Post> GetPostWithDetailsAsync(Guid postId, bool trackChanges)
         {
-         return   await FindByCondition(c => c.Id.Equals(postId), trackChanges)
-             .Include(u => u.User)
-             .Include(c => c.Category)
-           .SingleOrDefaultAsync();
+            return await FindByCondition(c => c.Id.Equals(postId), trackChanges)
+                .Include(u => u.User)
+                .Include(c => c.Category)
+                .SingleOrDefaultAsync();
         }
     }
 }

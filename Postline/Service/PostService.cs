@@ -13,6 +13,7 @@ using Shared.DataTransferObjects;
 using Shared.DataTransferObjects.ForCreation;
 using Shared.DataTransferObjects.ForShow;
 using Shared.DataTransferObjects.ForUpdate;
+using Shared.RequestFeatures;
 
 namespace Service
 {
@@ -32,19 +33,18 @@ namespace Service
             _userManager = userManager;
         }
 
-        public async Task<IEnumerable<PostDto>> GetAllPostsAsync(bool trackChanges)
+        public async Task<(IEnumerable<PostDto> posts, MetaData metaData)> GetAllPostsAsync(PostParameters postParameters,bool trackChanges)
         {
-            // var posts = await _repository.Post.GetAllPostsAsync(trackChanges);
-            var posts = await _repository.Post.GetAllPostsWithDetailsAsync(trackChanges);
+            var postsWithMetaData =   await _repository.Post.GetAllPostsWithDetailsAsync(postParameters,trackChanges);
 
-            foreach (var post in posts)
+            foreach (var post in  postsWithMetaData)
             {
                 post.User = await _userManager.FindByIdAsync(post.UserId.ToString());
             }
-            
-            var postsDto = _mapper.Map<IEnumerable<PostDto>>(posts);
 
-            return postsDto;
+            var postsDto = _mapper.Map<IEnumerable<PostDto>>(postsWithMetaData);
+
+            return  (posts: postsDto, metaData: postsWithMetaData.MetaData);
         }
 
         public async Task<PostDto> GetPostAsync(Guid id, bool trackChanges)

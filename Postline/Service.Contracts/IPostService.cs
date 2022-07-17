@@ -5,12 +5,13 @@ using Shared.DataTransferObjects;
 using Shared.DataTransferObjects.ForCreation;
 using Shared.DataTransferObjects.ForShow;
 using Shared.DataTransferObjects.ForUpdate;
+using Shared.RequestFeatures;
 
 namespace Service.Contracts
 {
     public interface IPostService
     {
-        Task<IEnumerable<PostDto>> GetAllPostsAsync(bool trackChanges);
+        Task<(IEnumerable<PostDto> posts, MetaData metaData)> GetAllPostsAsync(PostParameters postParameters,bool trackChanges);
         Task<PostDto> GetPostAsync(Guid postId, bool trackChanges);
         Task<PostDto> CreatePostAsync(PostForCreationDto post, string name);
         Task<IEnumerable<PostDto>> GetByIdsAsync(IEnumerable<Guid> ids, bool trackChanges);

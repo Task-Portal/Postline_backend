@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Entities.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -6,7 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using Postline.Presentation.ActionFilters;
 using Service.Contracts;
 using Shared.DataTransferObjects.ForCreation;
+using Shared.DataTransferObjects.ForShow;
 using Shared.DataTransferObjects.ForUpdate;
+using Shared.RequestFeatures;
 
 namespace Postline.Presentation.Controllers
 {
@@ -22,11 +25,14 @@ namespace Postline.Presentation.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetPosts()
+        public async Task<IActionResult> GetPosts([FromQuery] PostParameters postParameters)
         {
-            var posts = await _service.PostService.GetAllPostsAsync(false);
-
-            return Ok(posts);
+            var pagedPosts = await _service.PostService.GetAllPostsAsync(postParameters,false);
+         
+           var response=   new PostDtoWithPagination{Posts = pagedPosts.posts, Data = pagedPosts.metaData};
+            
+          
+              return Ok(response);
         }
 
         [HttpGet("{id:guid}", Name = "PostById")]
