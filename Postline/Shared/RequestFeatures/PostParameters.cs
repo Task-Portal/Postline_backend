@@ -10,9 +10,9 @@ namespace Shared.RequestFeatures
         public DateTime PostTo { get; set; }
         
         public bool ValidDateTimeRange => PostTo >= PostFrom;
-        //
-        public bool FilterAvailable =>
-            CategoryName != null || PostFrom != default;
+
+        public string SearchTerm { get; set; }
+       
 
     }
 }

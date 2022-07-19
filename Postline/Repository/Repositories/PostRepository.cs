@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Contracts;
 using Entities.Models;
 using Microsoft.EntityFrameworkCore;
+using Repository.Extensions;
 using Shared.RequestFeatures;
 
 namespace Repository.Repositories
@@ -54,65 +55,19 @@ namespace Repository.Repositories
 
         public async Task<PagedList<Post>> GetAllPostsWithDetailsAsync(PostParameters postParameters, bool trackChanges)
         {
-            if (!postParameters.FilterAvailable)
-            {
-                var posts = await FindAll(trackChanges)
-                    .Include(u => u.User)
-                    .Include(c => c.Category)
-                    .OrderBy(c => c.PostDate)
-                    .Skip((postParameters.PageNumber - 1) * postParameters.PageSize)
-                    .Take(postParameters.PageSize)
-                    .ToListAsync();
-
-                var count = await FindAll(false).CountAsync();
-
-                return new PagedList<Post>(posts, count, postParameters.PageNumber, postParameters.PageSize);
-            }
-
-
-            return await GetPostsByFilter(postParameters, trackChanges);
-        }
-
-        private async Task<PagedList<Post>> GetPostsByFilter(PostParameters postParameters, bool trackChanges)
-        {
-            List<Post> posts = null;
-
-
-            if (postParameters.PostFrom != default && postParameters.CategoryName != null)
-            {
-                posts = await FindByCondition(p => p.Category.CategoryName.Equals(postParameters.CategoryName)
-                                                   && (p.PostDate >= postParameters.PostFrom &&
-                                                       p.PostDate <= postParameters.PostTo)
-                        , trackChanges).Include(u => u.User)
-                    .Include(c => c.Category)
-                    .OrderBy(c => c.PostDate)
-                    .ToListAsync();
-            }
-            else if (postParameters.CategoryName != null)
-            {
-                posts = await FindByCondition(p => p.Category.CategoryName.Equals(postParameters.CategoryName),
-                        trackChanges)
-                    .Include(u => u.User)
-                    .Include(c => c.Category)
-                    .OrderBy(c => c.PostDate)
-                    .ToListAsync();
-            }
-            else
-            {
-                posts = await FindByCondition(p =>
-                            (p.PostDate >= postParameters.PostFrom &&
-                             p.PostDate <= postParameters.PostTo),
-                        trackChanges)
-                    .Include(u => u.User)
-                    .Include(c => c.Category)
-                    .OrderBy(c => c.PostDate)
-                    .ToListAsync();
-            }
-
+            
+            var posts = await FindAll(trackChanges)
+                .FilterPostsByCategory(postParameters.CategoryName)
+                .FilterPostsByDate(postParameters.PostFrom, postParameters.PostTo)
+                .Search(postParameters.SearchTerm)
+                .Include(u => u.User)
+                .Include(c => c.Category)
+                .OrderBy(c => c.PostDate)
+                .ToListAsync();
             var count = posts.Count();
-            return new PagedList<Post>(posts, count, postParameters.PageNumber, postParameters.PageSize);
+            return new PagedList<Post>(posts, count, postParameters.PageNumber, postParameters.PageSize);    
+            
         }
-
         public async Task<Post> GetPostWithDetailsAsync(Guid postId, bool trackChanges)
         {
             return await FindByCondition(c => c.Id.Equals(postId), trackChanges)
