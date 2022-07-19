@@ -1,6 +1,7 @@
 ﻿using System;
+using Entities.Exceptions.Abstract;
 
-namespace Entities.Exceptions
+namespace Entities.Exceptions.NotFoundExceptions
 {
     public sealed class UserNotFoundException : NotFoundException
     {

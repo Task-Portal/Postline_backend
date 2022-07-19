@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Contracts;
 using Entities.Exceptions;
+using Entities.Exceptions.NotFoundExceptions;
 using Entities.Models;
 using LoggerService;
 using Service.Contracts;

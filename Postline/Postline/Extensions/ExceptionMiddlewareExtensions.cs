@@ -5,6 +5,8 @@
 using Contracts;
 using Entities.ErrorModel;
 using Entities.Exceptions;
+using Entities.Exceptions.Abstract;
+using Entities.Exceptions.BadRequestExceptions;
 using LoggerService;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;

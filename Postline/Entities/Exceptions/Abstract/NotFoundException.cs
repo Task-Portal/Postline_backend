@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Entities.Exceptions
+namespace Entities.Exceptions.Abstract
 {
     public abstract class NotFoundException : Exception
     {

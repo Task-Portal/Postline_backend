@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Contracts;
 using Entities.Exceptions;
+using Entities.Exceptions.BadRequestExceptions;
+using Entities.Exceptions.NotFoundExceptions;
 using Entities.Models;
 using LoggerService;
 using Microsoft.AspNetCore.Identity;
@@ -35,12 +37,11 @@ namespace Service
 
         public async Task<(IEnumerable<PostDto> posts, MetaData metaData)> GetAllPostsAsync(PostParameters postParameters,bool trackChanges)
         {
+            if (!postParameters.ValidDateTimeRange) 
+                throw new MaxDateRangeBadRequestException(); 
+            
             var postsWithMetaData =   await _repository.Post.GetAllPostsWithDetailsAsync(postParameters,trackChanges);
-
-            // foreach (var post in  postsWithMetaData)
-            // {
-            //     post.User = await _userManager.FindByIdAsync(post.User.Id);
-            // }
+            
 
             var postsDto = _mapper.Map<IEnumerable<PostDto>>(postsWithMetaData);
 

@@ -34,9 +34,8 @@ namespace Repository.Repositories
         public async Task<IEnumerable<Post>> GetPostsByUserIdAsync(Guid userId, bool trackChanges) =>
             await FindByCondition(x => x.User.Id.Equals(userId), trackChanges)
                 .ToListAsync();
-        
-    
-        
+
+
         public async Task<IEnumerable<Post>> GetPostsByUserIdWithDetailsAsync(Guid userId, bool trackChanges) =>
             await FindByCondition(x => x.User.Id.Equals(userId), trackChanges).Include(u => u.User)
                 .Include(c => c.Category)
@@ -52,20 +51,66 @@ namespace Repository.Repositories
 
         public void DeletePost(Post post) => Delete(post);
 
-       
+
         public async Task<PagedList<Post>> GetAllPostsWithDetailsAsync(PostParameters postParameters, bool trackChanges)
         {
-            var posts = await FindAll(trackChanges)
-                .Include(u => u.User)
-                .Include(c => c.Category)
-                .OrderBy(c => c.PostDate)
-                .Skip((postParameters.PageNumber - 1) * postParameters.PageSize) 
-                .Take(postParameters.PageSize) 
-                .ToListAsync();
+            if (!postParameters.FilterAvailable)
+            {
+                var posts = await FindAll(trackChanges)
+                    .Include(u => u.User)
+                    .Include(c => c.Category)
+                    .OrderBy(c => c.PostDate)
+                    .Skip((postParameters.PageNumber - 1) * postParameters.PageSize)
+                    .Take(postParameters.PageSize)
+                    .ToListAsync();
 
-            var count =await  FindAll(false).CountAsync();
+                var count = await FindAll(false).CountAsync();
 
-            return  new PagedList<Post>(posts, count, postParameters.PageNumber, postParameters.PageSize);
+                return new PagedList<Post>(posts, count, postParameters.PageNumber, postParameters.PageSize);
+            }
+
+
+            return await GetPostsByFilter(postParameters, trackChanges);
+        }
+
+        private async Task<PagedList<Post>> GetPostsByFilter(PostParameters postParameters, bool trackChanges)
+        {
+            List<Post> posts = null;
+
+
+            if (postParameters.PostFrom != default && postParameters.CategoryName != null)
+            {
+                posts = await FindByCondition(p => p.Category.CategoryName.Equals(postParameters.CategoryName)
+                                                   && (p.PostDate >= postParameters.PostFrom &&
+                                                       p.PostDate <= postParameters.PostTo)
+                        , trackChanges).Include(u => u.User)
+                    .Include(c => c.Category)
+                    .OrderBy(c => c.PostDate)
+                    .ToListAsync();
+            }
+            else if (postParameters.CategoryName != null)
+            {
+                posts = await FindByCondition(p => p.Category.CategoryName.Equals(postParameters.CategoryName),
+                        trackChanges)
+                    .Include(u => u.User)
+                    .Include(c => c.Category)
+                    .OrderBy(c => c.PostDate)
+                    .ToListAsync();
+            }
+            else
+            {
+                posts = await FindByCondition(p =>
+                            (p.PostDate >= postParameters.PostFrom &&
+                             p.PostDate <= postParameters.PostTo),
+                        trackChanges)
+                    .Include(u => u.User)
+                    .Include(c => c.Category)
+                    .OrderBy(c => c.PostDate)
+                    .ToListAsync();
+            }
+
+            var count = posts.Count();
+            return new PagedList<Post>(posts, count, postParameters.PageNumber, postParameters.PageSize);
         }
 
         public async Task<Post> GetPostWithDetailsAsync(Guid postId, bool trackChanges)
