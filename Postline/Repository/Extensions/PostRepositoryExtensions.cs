@@ -34,8 +34,9 @@ namespace Repository.Extensions
                 return posts;
 
 
-            return posts.Where(p => Regex.IsMatch(p.Title, searchTerm, RegexOptions.IgnoreCase) ||
-                                    Regex.IsMatch(p.Body, searchTerm, RegexOptions.IgnoreCase));
+            return posts.Where(p =>p.Title.ToLower().Contains(searchTerm)||
+            p.Body.Contains(searchTerm)  );
+            
         }
     }
 }

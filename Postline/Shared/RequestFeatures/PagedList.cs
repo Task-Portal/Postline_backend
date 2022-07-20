@@ -24,7 +24,11 @@ namespace Shared.RequestFeatures
         public static PagedList<T> ToPagedList(IEnumerable<T> source, int pageNumber, int 
             pageSize) 
         { 
-            var count = source.Count(); 
+            var count = source.Count();
+            if (count<=pageSize)
+            {
+                return new PagedList<T>(source.ToList(), count, 1, pageSize); 
+            }
             var items = source 
                 .Skip((pageNumber - 1) * pageSize) 
                 .Take(pageSize).ToList(); 

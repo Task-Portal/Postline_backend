@@ -64,8 +64,8 @@ namespace Repository.Repositories
                 .Include(c => c.Category)
                 .OrderBy(c => c.PostDate)
                 .ToListAsync();
-            var count = posts.Count();
-            return new PagedList<Post>(posts, count, postParameters.PageNumber, postParameters.PageSize);    
+           
+            return  PagedList<Post>.ToPagedList(posts,  postParameters.PageNumber, postParameters.PageSize);    
             
         }
         public async Task<Post> GetPostWithDetailsAsync(Guid postId, bool trackChanges)
