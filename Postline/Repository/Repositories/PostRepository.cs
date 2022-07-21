@@ -62,7 +62,7 @@ namespace Repository.Repositories
                 .Search(postParameters.SearchTerm)
                 .Include(u => u.User)
                 .Include(c => c.Category)
-                .OrderBy(c => c.PostDate)
+                .Sort(postParameters.OrderBy)
                 .ToListAsync();
            
             return  PagedList<Post>.ToPagedList(posts,  postParameters.PageNumber, postParameters.PageSize);    
