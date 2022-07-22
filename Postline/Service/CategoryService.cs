@@ -53,10 +53,10 @@ namespace Service
         }
 
 
-        public async Task UpdateCategoryAsync(Guid categoryId,
+        public async Task UpdateCategoryAsync(
             CategoryForUpdateDto categoryForUpdate, bool trackChanges)
         {
-            var category = await GetCategoryAndCheckIfItExists(categoryId, trackChanges);
+            var category = await GetCategoryAndCheckIfItExists(categoryForUpdate.Id , trackChanges);
 
             _mapper.Map(categoryForUpdate, category);
             await _repository.SaveAsync();

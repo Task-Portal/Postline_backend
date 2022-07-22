@@ -13,7 +13,7 @@ namespace Shared.RequestFeatures
 
         public string SearchTerm { get; set; }
        
-        // public PostParameters() => OrderBy = "date";    
+        
 
     }
 }

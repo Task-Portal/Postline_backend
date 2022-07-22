@@ -147,7 +147,7 @@ namespace Postline.Presentation.Controllers
         {
             var response = await _service.AuthenticationService.SendRestoreLinkToEmail(forgotPasswordDto);
             if (!response)
-                return BadRequest("Invalid Request");
+                return BadRequest("Invalid Request.");
 
 
             return Ok();

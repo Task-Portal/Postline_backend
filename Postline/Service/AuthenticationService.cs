@@ -92,8 +92,10 @@ namespace Service
 
         public async Task<bool> ValidateUser(UserForAuthenticationDto userForAuth)
         {
-            _user = await _userManager.FindByEmailAsync(userForAuth.Email);
+            _user = await _userManager.FindByNameAsync(userForAuth.Email);
 
+            if (_user == null) return false;
+            
             var result = (_user != null && await _userManager.CheckPasswordAsync(_user, userForAuth.Password));
 
 
