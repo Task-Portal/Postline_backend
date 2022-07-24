@@ -74,7 +74,7 @@ namespace Service
 
             var result = await _userManager.CreateAsync(user, userForRegistration.Password);
 
-           
+
             if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(user, "User");
@@ -95,7 +95,7 @@ namespace Service
             _user = await _userManager.FindByNameAsync(userForAuth.Email);
 
             if (_user == null) return false;
-            
+
             var result = (_user != null && await _userManager.CheckPasswordAsync(_user, userForAuth.Password));
 
 
@@ -318,7 +318,6 @@ namespace Service
 
         public async Task GenerateOTPFor2StepVerification(UserForAuthenticationDto userForAuthentication)
         {
-            // _user = await _userManager.FindByEmailAsync(userForAuthentication.Email); // delete this line
             var token = await _userManager.GenerateTwoFactorTokenAsync(_user, "Email");
             var message = new Message(new string[] { _user.Email }, "Authentication token", token, null);
             await _emailSender.SendEmailAsync(message);
@@ -334,7 +333,7 @@ namespace Service
 
         #endregion
 
-        #region External Login
+        #region External login
 
         public async Task<bool> ExternalLogin(ExternalAuthDto externalAuth, GoogleJsonWebSignature.Payload payload)
         {
@@ -347,17 +346,22 @@ namespace Service
 
                 if (_user == null)
                 {
-                    _user = new User { Email = payload.Email, UserName = payload.Email, FirstName = payload.GivenName, LastName = payload.FamilyName, EmailConfirmed = true};
+                    _user = new User
+                    {
+                        Email = payload.Email, UserName = payload.Email, FirstName = payload.GivenName,
+                        LastName = payload.FamilyName, EmailConfirmed = payload.EmailVerified
+                    };
                     await _userManager.CreateAsync(_user);
 
-                    //prepare and send an email for the email confirmation
-                    // await GenerateEmailConfirmationToken(_user);
+                    if (!payload.EmailVerified)
+                    {
+                        await GenerateEmailConfirmationToken(_user);
+                    }
 
                     await _userManager.AddToRoleAsync(_user, "User");
-                   
                 }
+
                 await _userManager.AddLoginAsync(_user, info);
-                
             }
 
             return _user == null;
@@ -371,7 +375,7 @@ namespace Service
 
             #endregion
         }
-    }
 
-    #endregion
+        #endregion
+    }
 }

@@ -50,17 +50,7 @@ namespace Postline.Presentation.Controllers
             var post = await _service.PostService.GetPostsByUserName(User.Identity.Name, false);
             return Ok(post);
         }
-
-
-        // [HttpGet("collection/({ids})", Name = "PostCollection")]
-        // public async Task<IActionResult> GetPostCollection
-        //     ([ModelBinder(BinderType = typeof(ArrayModelBinder<>))] IEnumerable<Guid> ids)
-        // {
-        //     var companies = await _service.PostService.GetByIdsAsync(ids, trackChanges: false);
-        //
-        //     return Ok(companies);
-        // }
-        //
+        
 
         [HttpPost]
         [ServiceFilter(typeof(ValidationFilterAttribute))]

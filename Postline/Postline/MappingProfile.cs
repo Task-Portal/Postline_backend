@@ -15,6 +15,7 @@ namespace Postline
             CreateMap<UserForRegistrationDto, User>()  
                 .ForMember(u => u.UserName, opt => opt.MapFrom(x => x.Email));;
             CreateMap<User,UserDto>();
+            CreateMap<User, UserForUpdateMe>();
 
 
             CreateMap<Post, PostDto>()
@@ -23,8 +24,7 @@ namespace Postline
                 .ForMember(pd=>pd.LastName,p=>p.MapFrom(x=>x.User.LastName))
                 .ReverseMap();
             CreateMap<PostForCreationDto, Post>();
-                // .ForMember(p => p.User.Id, pc => pc.MapFrom(x => x.UserId))
-                // .ForMember(p => p.Category.Id, pc => pc.MapFrom(x => x.CategoryId));
+               
             CreateMap<PostForUpdateDto, Post>();
             
             CreateMap<Category, CategoryDto>().ReverseMap();
@@ -35,12 +35,6 @@ namespace Postline
 
         }
         
-        // CreateMap<Customer, CustomerModel>()
-        // .ForMember(cm => cm.ReceiptsIds, s => s.MapFrom(x => x.Receipts.Select(y => y.Id)))
-        // .ForMember(cm => cm.DiscountValue, s => s.MapFrom(x => x.DiscountValue))
-        // .ForMember(cm => cm.Name, s => s.MapFrom(x => x.Person.Name))
-        // .ForMember(cm => cm.Surname, s => s.MapFrom(x => x.Person.Surname))
-        // .ForMember(cm => cm.BirthDate, s => s.MapFrom(x => x.Person.BirthDate))
-        // .ReverseMap();
+       
     }
 }
