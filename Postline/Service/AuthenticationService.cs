@@ -79,7 +79,6 @@ namespace Service
             {
                 await _userManager.AddToRoleAsync(user, "User");
                 await GenerateEmailConfirmationToken(user, userForRegistration);
-                // await _userManager.SetTwoFactorEnabledAsync(user,true);
             }
 
 

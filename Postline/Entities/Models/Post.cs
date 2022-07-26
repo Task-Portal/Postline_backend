@@ -14,5 +14,6 @@ namespace Entities.Models
         public User User { get; set; }
         public Category Category { get; set; }
         public ICollection<Comment> Comments { get; set; }
+        public ICollection<Point> Points { get; set; }
     }
 }

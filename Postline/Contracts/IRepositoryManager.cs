@@ -7,6 +7,8 @@ namespace Contracts
         IPostRepository Post { get; }
         ICommentRepository Comment { get; }
         ICategoryRepository Category { get; }
+        
+        IPointRepository Point { get; }
         Task SaveAsync();
     }
 }

@@ -1,12 +1,11 @@
-﻿using System;
+﻿
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Postline.Presentation.ActionFilters;
 using Service.Contracts;
-using Shared.DataTransferObjects.ForAuth;
-using Shared.DataTransferObjects.ForCreation;
+
 using Shared.DataTransferObjects.ForUpdate;
 
 namespace Postline.Presentation.Controllers

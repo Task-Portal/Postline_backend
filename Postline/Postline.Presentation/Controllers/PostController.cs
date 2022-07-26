@@ -44,7 +44,7 @@ namespace Postline.Presentation.Controllers
         }
 
         [HttpGet("user")]
-        [Authorize(Roles = "User")]
+         [Authorize(Roles = "User")]
         public async Task<IActionResult> GetPostsByUserName()
         {
             var post = await _service.PostService.GetPostsByUserName(User.Identity.Name, false);

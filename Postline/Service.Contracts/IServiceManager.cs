@@ -7,5 +7,7 @@
         ICategoryService CategoryService { get; }
         IAuthenticationService AuthenticationService { get; }
         IUserService UserService { get; }
+        
+        IPointService PointService { get; }
     }
 }

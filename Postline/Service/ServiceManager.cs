@@ -18,12 +18,14 @@ namespace Service
         private readonly Lazy<ICommentService> _commentService;
         private readonly Lazy<ICategoryService> _categoryService;
         private readonly Lazy<IUserService> _userService;
+        private readonly Lazy<IPointService> _pointService;
 
         public ServiceManager(IRepositoryManager repositoryManager,
             ILoggerManager logger,
             IMapper mapper, 
             UserManager<User> userManager,
-            IConfiguration configuration, IEmailSender emailService)
+            IConfiguration configuration, IEmailSender emailService
+            )
         {
             _postService = new Lazy<IPostService>(() => new PostService(logger, repositoryManager, mapper,userManager));
             _commentService = new Lazy<ICommentService>(() => new CommentService(logger, repositoryManager,mapper));
@@ -31,6 +33,7 @@ namespace Service
             _authenticationService = new Lazy<IAuthenticationService>(() =>
                 new AuthenticationService(logger, mapper, userManager, configuration, emailService));
             _userService = new Lazy<IUserService>(() => new UserService( mapper, userManager, configuration));
+            _pointService = new Lazy<IPointService>(() => new PointService(repositoryManager, mapper, userManager));
         }
 
         public IAuthenticationService AuthenticationService => _authenticationService.Value;
@@ -38,5 +41,7 @@ namespace Service
         public ICommentService CommentService => _commentService.Value;
         public ICategoryService CategoryService => _categoryService.Value;
         public IUserService UserService => _userService.Value;
+
+        public IPointService PointService => _pointService.Value;
     }
 }

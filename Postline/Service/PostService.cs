@@ -41,9 +41,15 @@ namespace Service
                 throw new MaxDateRangeBadRequestException(); 
             
             var postsWithMetaData =   await _repository.Post.GetAllPostsWithDetailsAsync(postParameters,trackChanges);
-            
 
+
+            foreach (var post in postsWithMetaData)
+            {
+                post.Rating = _repository.Point.GetNumberByPostId(post.Id,false);
+            }
+            
             var postsDto = _mapper.Map<IEnumerable<PostDto>>(postsWithMetaData);
+            
 
             return  (posts: postsDto, metaData: postsWithMetaData.MetaData);
         }
@@ -51,8 +57,9 @@ namespace Service
         public async Task<PostDto> GetPostAsync(Guid id, bool trackChanges)
         {
             var post = await GetPostAndCheckIfItExists(id, trackChanges);
-
+            post.Rating =  _repository.Point.GetNumberByPostId(post.Id,false);
             var postDto = _mapper.Map<PostDto>(post);
+            
             return postDto;
         }
 

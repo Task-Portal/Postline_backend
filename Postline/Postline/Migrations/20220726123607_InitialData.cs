@@ -223,20 +223,46 @@ namespace Postline.Migrations
                         onDelete: ReferentialAction.Restrict);
                 });
 
-            migrationBuilder.InsertData(
-                table: "AspNetRoles",
-                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "452b8ef9-ff24-4f4c-9b0e-198985467efe", "cd9a3301-9b89-4f4e-854e-e7257684e514", "None", "NONE" });
+            migrationBuilder.CreateTable(
+                name: "Points",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    IsIncrement = table.Column<bool>(nullable: false),
+                    UserId = table.Column<string>(nullable: true),
+                    PostId = table.Column<Guid>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Points", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Points_Posts_PostId",
+                        column: x => x.PostId,
+                        principalTable: "Posts",
+                        principalColumn: "PostId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Points_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "b2d2a4cb-de9a-43cd-a00b-81ef44e30198", "023d7416-9811-495d-94c2-d5007cda22e5", "User", "USER" });
+                values: new object[] { "beac8d6f-6c80-4198-9777-2bdcefb3426a", "5e0708bc-6e79-468d-8913-43eacb59e398", "None", "NONE" });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "060fd13d-defe-4118-97c0-a548629dace0", "fa945b49-cada-4454-b0d2-8d2a965ed917", "Manager", "MANAGER" });
+                values: new object[] { "de3ceaf0-48b8-47a0-9287-c6b24ff66e39", "d3012e97-2a33-4277-bc5e-e1b868046cda", "User", "USER" });
+
+            migrationBuilder.InsertData(
+                table: "AspNetRoles",
+                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
+                values: new object[] { "d1ba1650-8853-48b5-869a-96bfdc3654c9", "50a417e1-f0ac-44f9-a97d-8fbbd7b3d0b7", "Manager", "MANAGER" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -288,6 +314,16 @@ namespace Postline.Migrations
                 column: "UserId1");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Points_PostId",
+                table: "Points",
+                column: "PostId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Points_UserId",
+                table: "Points",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Posts_CategoryId",
                 table: "Posts",
                 column: "CategoryId");
@@ -317,6 +353,9 @@ namespace Postline.Migrations
 
             migrationBuilder.DropTable(
                 name: "Comments");
+
+            migrationBuilder.DropTable(
+                name: "Points");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
