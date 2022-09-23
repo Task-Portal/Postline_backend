@@ -27,5 +27,19 @@
     <ProjectReference Include="..\Shared\Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\222.2dbd6245fd08a79b.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\275.4ba8d9cd3315d1e9.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\3rdpartylicenses.txt" />
+    <_ContentIncludedByDefault Remove="wwwroot\697.764af6aa117a1181.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\favicon.ico" />
+    <_ContentIncludedByDefault Remove="wwwroot\index.html" />
+    <_ContentIncludedByDefault Remove="wwwroot\main.97d5451c50a16c9a.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\polyfills.62db4e6fe5c8089d.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\runtime.38c6c077c293defd.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\scripts.989ea8d343978b4f.js" />
+    <_ContentIncludedByDefault Remove="wwwroot\styles.b1a1e8d2b2d8ee2e.css" />
+  </ItemGroup>
+
 
 </Project>

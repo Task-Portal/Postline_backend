@@ -51,11 +51,9 @@ namespace Postline
             services.AddMemoryCache();
             services.ConfigureRateLimitingOptions();
             services.AddHttpContextAccessor();
-            
-            
-            
-            
-            
+
+
+
             services.AddAuthentication(); 
             services.ConfigureIdentity(); 
             

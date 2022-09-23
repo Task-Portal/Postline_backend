@@ -222,22 +222,22 @@ namespace Postline.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "beac8d6f-6c80-4198-9777-2bdcefb3426a",
-                            ConcurrencyStamp = "5e0708bc-6e79-468d-8913-43eacb59e398",
+                            Id = "408f4a09-f246-4925-895b-0e3541d77323",
+                            ConcurrencyStamp = "8c68735a-d32e-43d2-a568-3529100559a9",
                             Name = "None",
                             NormalizedName = "NONE"
                         },
                         new
                         {
-                            Id = "de3ceaf0-48b8-47a0-9287-c6b24ff66e39",
-                            ConcurrencyStamp = "d3012e97-2a33-4277-bc5e-e1b868046cda",
+                            Id = "5f1b7c98-db38-4b66-a564-193b666a141d",
+                            ConcurrencyStamp = "09d7534e-b754-43b1-a332-1e600d5c1e7a",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "d1ba1650-8853-48b5-869a-96bfdc3654c9",
-                            ConcurrencyStamp = "50a417e1-f0ac-44f9-a97d-8fbbd7b3d0b7",
+                            Id = "4074d99b-e5f2-4713-be1f-9bd1494d7bc5",
+                            ConcurrencyStamp = "e346aafd-608c-4232-9439-2c6d3db60799",
                             Name = "Manager",
                             NormalizedName = "MANAGER"
                         });
